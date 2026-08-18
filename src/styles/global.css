@@ -1,0 +1,95 @@
+/* Remapeia variáveis do Bootstrap 5 para a identidade visual do Rumo,
+   evitando recompilar o Bootstrap via Sass. */
+:root {
+  --bs-primary: var(--rumo-navy);
+  --bs-primary-rgb: 31, 49, 66;
+  --bs-secondary: var(--rumo-gray);
+  --bs-success: var(--rumo-mint);
+  --bs-success-rgb: 75, 178, 145;
+  --bs-warning: var(--rumo-warning);
+  --bs-danger: var(--rumo-danger);
+  --bs-body-color: var(--rumo-text-primary);
+  --bs-body-bg: var(--rumo-bg);
+  --bs-body-font-family: var(--rumo-font-sans);
+  --bs-border-color: var(--rumo-border);
+  --bs-border-radius: var(--rumo-radius-md);
+  --bs-border-radius-sm: var(--rumo-radius-sm);
+  --bs-border-radius-lg: var(--rumo-radius-lg);
+  --bs-border-radius-pill: var(--rumo-radius-pill);
+  --bs-link-color: var(--rumo-navy);
+  --bs-link-hover-color: var(--rumo-navy-dark);
+  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(75, 178, 145, 0.35);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--rumo-navy);
+  --bs-btn-border-color: var(--rumo-navy);
+  --bs-btn-hover-bg: var(--rumo-navy-dark);
+  --bs-btn-hover-border-color: var(--rumo-navy-dark);
+  --bs-btn-active-bg: var(--rumo-navy-dark);
+  --bs-btn-active-border-color: var(--rumo-navy-dark);
+}
+
+.btn-success {
+  --bs-btn-bg: var(--rumo-mint);
+  --bs-btn-border-color: var(--rumo-mint);
+  --bs-btn-hover-bg: var(--rumo-mint-dark);
+  --bs-btn-hover-border-color: var(--rumo-mint-dark);
+  --bs-btn-active-bg: var(--rumo-mint-dark);
+  --bs-btn-active-border-color: var(--rumo-mint-dark);
+  color: var(--rumo-navy-dark);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--rumo-bg);
+  color: var(--rumo-text-primary);
+  font-family: var(--rumo-font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.rumo-page-title {
+  font-size: var(--rumo-fs-xl);
+  font-weight: var(--rumo-fw-bold);
+  color: var(--rumo-navy);
+  margin: 0;
+}
+
+/* Área segura para notch/home indicator do iPhone */
+.rumo-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.rumo-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rumo-gray-light);
+  border-radius: var(--rumo-radius-pill);
+}

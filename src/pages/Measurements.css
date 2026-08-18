@@ -1,0 +1,7 @@
+.rumo-measurement-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-4);
+}

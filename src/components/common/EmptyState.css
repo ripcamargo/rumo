@@ -1,0 +1,30 @@
+.rumo-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--rumo-space-2);
+  padding: var(--rumo-space-6) var(--rumo-space-4);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-empty-state-icon {
+  font-size: 2rem;
+  margin-bottom: var(--rumo-space-1);
+}
+
+.rumo-empty-state-title {
+  font-weight: var(--rumo-fw-semibold);
+  color: var(--rumo-text-primary);
+  margin: 0;
+}
+
+.rumo-empty-state-description {
+  font-size: var(--rumo-fs-sm);
+  margin: 0;
+  max-width: 32ch;
+}
+
+.rumo-empty-state-action {
+  margin-top: var(--rumo-space-3);
+}

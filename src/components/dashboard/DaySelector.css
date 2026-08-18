@@ -1,0 +1,55 @@
+.rumo-day-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--rumo-space-2);
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.rumo-day-selector-arrow {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rumo-border);
+  border-radius: 50%;
+  background: var(--rumo-surface);
+  color: var(--rumo-navy);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color var(--rumo-transition-fast),
+    opacity var(--rumo-transition-fast);
+}
+
+.rumo-day-selector-arrow:hover:not(:disabled) {
+  border-color: var(--rumo-mint);
+}
+
+.rumo-day-selector-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.rumo-day-selector-label {
+  display: flex;
+  align-items: center;
+  gap: var(--rumo-space-2);
+  color: var(--rumo-text-secondary);
+  font-size: var(--rumo-fs-sm);
+}
+
+.rumo-day-selector-today-btn {
+  border: none;
+  background: none;
+  color: var(--rumo-mint-dark);
+  font-size: var(--rumo-fs-xs);
+  font-weight: var(--rumo-fw-semibold);
+  padding: 2px var(--rumo-space-2);
+  border-radius: var(--rumo-radius-pill);
+  background: rgba(75, 178, 145, 0.12);
+  cursor: pointer;
+}

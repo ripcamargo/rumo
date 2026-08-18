@@ -1,0 +1,32 @@
+.rumo-history-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-5);
+}
+
+.rumo-history-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-4);
+}
+
+.rumo-history-section-title {
+  font-size: var(--rumo-fs-md);
+  font-weight: var(--rumo-fw-semibold);
+  margin: 0 0 var(--rumo-space-3);
+}
+
+.rumo-history-exercise-date {
+  color: var(--rumo-text-secondary);
+  font-weight: var(--rumo-fw-regular);
+}
+
+@media (min-width: 1024px) {
+  .rumo-history-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

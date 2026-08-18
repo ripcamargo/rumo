@@ -1,0 +1,81 @@
+.rumo-auth-layout {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--rumo-space-5);
+  background: var(--rumo-bg);
+}
+
+.rumo-auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--rumo-surface);
+  border-radius: var(--rumo-radius-lg);
+  border: 1px solid var(--rumo-border);
+  box-shadow: var(--rumo-shadow-md);
+  padding: var(--rumo-space-6) var(--rumo-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-4);
+}
+
+.rumo-auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--rumo-space-2);
+}
+
+.rumo-auth-title {
+  font-size: var(--rumo-fs-lg);
+  font-weight: var(--rumo-fw-semibold);
+  text-align: center;
+  margin: 0;
+}
+
+.rumo-auth-subtitle {
+  font-size: var(--rumo-fs-sm);
+  color: var(--rumo-text-secondary);
+  text-align: center;
+  margin: calc(var(--rumo-space-2) * -1) 0 0;
+}
+
+.rumo-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-1);
+}
+
+.rumo-auth-field label {
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-medium);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-auth-field input {
+  padding: var(--rumo-space-3);
+  border-radius: var(--rumo-radius-md);
+  border: 1px solid var(--rumo-border);
+  font-size: var(--rumo-fs-md);
+}
+
+.rumo-auth-field input:focus {
+  outline: none;
+  border-color: var(--rumo-mint);
+  box-shadow: 0 0 0 3px rgba(75, 178, 145, 0.18);
+}
+
+.rumo-auth-links {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--rumo-fs-sm);
+}
+
+.rumo-auth-links a {
+  color: var(--rumo-navy);
+  font-weight: var(--rumo-fw-medium);
+}
+
+.rumo-auth-links a:hover {
+  color: var(--rumo-mint-dark);
+}

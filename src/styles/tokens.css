@@ -1,0 +1,69 @@
+/* Rumo Design System — tokens de identidade visual.
+   Cores base (navy/mint) extraídas diretamente do arquivo public/logo.png. */
+:root {
+  /* Cores de marca */
+  --rumo-navy: #1f3142;
+  --rumo-navy-dark: #17283b;
+  --rumo-mint: #4bb291;
+  --rumo-mint-light: #6fd3b3;
+  --rumo-mint-dark: #379379;
+  --rumo-gray: #687784;
+  --rumo-gray-light: #a3aeb6;
+  --rumo-white: #ffffff;
+
+  /* Superfícies */
+  --rumo-bg: #f7f9f9;
+  --rumo-surface: var(--rumo-white);
+  --rumo-border: #e6eaec;
+
+  /* Texto */
+  --rumo-text-primary: var(--rumo-navy);
+  --rumo-text-secondary: var(--rumo-gray);
+  --rumo-text-inverse: var(--rumo-white);
+
+  /* Estado / feedback */
+  --rumo-success: var(--rumo-mint);
+  --rumo-warning: #e0a63a;
+  --rumo-danger: #d9634c;
+
+  /* Tipografia */
+  --rumo-font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --rumo-fs-xs: 0.75rem;
+  --rumo-fs-sm: 0.875rem;
+  --rumo-fs-md: 1rem;
+  --rumo-fs-lg: 1.25rem;
+  --rumo-fs-xl: 1.75rem;
+  --rumo-fs-2xl: 2.25rem;
+  --rumo-fw-regular: 400;
+  --rumo-fw-medium: 500;
+  --rumo-fw-semibold: 600;
+  --rumo-fw-bold: 700;
+
+  /* Espaçamento (escala de 4px) */
+  --rumo-space-1: 0.25rem;
+  --rumo-space-2: 0.5rem;
+  --rumo-space-3: 0.75rem;
+  --rumo-space-4: 1rem;
+  --rumo-space-5: 1.5rem;
+  --rumo-space-6: 2rem;
+  --rumo-space-8: 3rem;
+
+  /* Bordas e sombras */
+  --rumo-radius-sm: 0.5rem;
+  --rumo-radius-md: 0.875rem;
+  --rumo-radius-lg: 1.25rem;
+  --rumo-radius-pill: 999px;
+  --rumo-shadow-sm: 0 1px 2px rgba(23, 40, 59, 0.06);
+  --rumo-shadow-md: 0 4px 16px rgba(23, 40, 59, 0.08);
+  --rumo-shadow-lg: 0 12px 32px rgba(23, 40, 59, 0.12);
+
+  /* Layout */
+  --rumo-bottom-nav-height: 64px;
+  --rumo-header-height: 64px;
+  --rumo-max-content-width: 1200px;
+
+  /* Transições */
+  --rumo-transition-fast: 120ms ease;
+  --rumo-transition-base: 200ms ease;
+}

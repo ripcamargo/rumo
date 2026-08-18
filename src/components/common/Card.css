@@ -1,0 +1,10 @@
+.rumo-card {
+  background: var(--rumo-surface);
+  border-radius: var(--rumo-radius-lg);
+  border: 1px solid var(--rumo-border);
+  box-shadow: var(--rumo-shadow-sm);
+}
+
+.rumo-card--padded {
+  padding: var(--rumo-space-5);
+}

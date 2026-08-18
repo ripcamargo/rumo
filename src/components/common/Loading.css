@@ -1,0 +1,43 @@
+.rumo-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--rumo-space-3);
+  padding: var(--rumo-space-6);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--rumo-border);
+  border-top-color: var(--rumo-mint);
+  animation: rumo-spin 0.7s linear infinite;
+}
+
+.rumo-loading-label {
+  font-size: var(--rumo-fs-sm);
+}
+
+@keyframes rumo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rumo-skeleton {
+  background: linear-gradient(90deg, var(--rumo-border) 25%, #f0f2f3 37%, var(--rumo-border) 63%);
+  background-size: 400% 100%;
+  animation: rumo-shimmer 1.4s ease infinite;
+}
+
+@keyframes rumo-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}

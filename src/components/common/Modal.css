@@ -1,0 +1,82 @@
+.rumo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 40, 59, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1050;
+  animation: rumo-fade-in 0.15s ease;
+}
+
+.rumo-modal-sheet {
+  background: var(--rumo-surface);
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--rumo-radius-lg) var(--rumo-radius-lg) 0 0;
+  padding: var(--rumo-space-3) var(--rumo-space-5) calc(var(--rumo-space-6) + env(safe-area-inset-bottom));
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: rumo-slide-up 0.22s ease;
+}
+
+.rumo-modal-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--rumo-radius-pill);
+  background: var(--rumo-border);
+  margin: 0 auto var(--rumo-space-3);
+}
+
+.rumo-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-modal-title {
+  font-size: var(--rumo-fs-lg);
+  font-weight: var(--rumo-fw-semibold);
+  margin: 0;
+}
+
+.rumo-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--rumo-text-secondary);
+  padding: var(--rumo-space-1) var(--rumo-space-2);
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .rumo-modal-backdrop {
+    align-items: center;
+  }
+
+  .rumo-modal-sheet {
+    border-radius: var(--rumo-radius-lg);
+    max-height: 85vh;
+  }
+}
+
+@keyframes rumo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rumo-slide-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
