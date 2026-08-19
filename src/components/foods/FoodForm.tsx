@@ -3,10 +3,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { addFood, updateFood } from '../../services/firebase/firestore';
 import { Button } from '../common/Button';
-import type { Food } from '../../types';
+import { FOOD_CATEGORIES, type Food, type FoodCategory } from '../../types';
+import { foodCategoryIcon, foodCategoryLabel } from '../../utils/labels';
 import '../registration/QuickRegister.css';
 
-const SERVING_UNIT_SUGGESTIONS = ['g', 'ml', 'unidade', 'porção', 'fatia', 'copo'];
+const SERVING_UNITS = ['unid.', 'g', 'ml'];
 
 export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) {
   const { user } = useAuth();
@@ -15,8 +16,13 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
   const [calories, setCalories] = useState(food ? String(food.calories) : '');
   const [servingAmount, setServingAmount] = useState(food ? String(food.servingAmount) : '100');
   const [servingUnit, setServingUnit] = useState(food?.servingUnit ?? 'g');
+  const [category, setCategory] = useState<FoodCategory | ''>(food?.category ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const servingUnitOptions = SERVING_UNITS.includes(servingUnit)
+    ? SERVING_UNITS
+    : [servingUnit, ...SERVING_UNITS];
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -45,9 +51,9 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
         servingUnit: servingUnit.trim(),
       };
       if (food) {
-        await updateFood(user.uid, food.id, data);
+        await updateFood(user.uid, food.id, { ...data, category: category || null });
       } else {
-        await addFood(user.uid, data);
+        await addFood(user.uid, { ...data, category: category || undefined });
       }
       showToast(food ? 'Alimento atualizado' : 'Alimento cadastrado');
       onDone();
@@ -74,29 +80,29 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
           onChange={(e) => setName(e.target.value)}
         />
       </div>
-      <div>
-        <label className="rumo-form-label" htmlFor="food-calories-input">
-          Calorias (kcal) por porção
-        </label>
-        <input
-          id="food-calories-input"
-          className="rumo-form-input"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          placeholder="90"
-          value={calories}
-          onChange={(e) => setCalories(e.target.value)}
-        />
-      </div>
-      <div style={{ display: 'flex', gap: 'var(--rumo-space-3)' }}>
-        <div style={{ flex: 1 }}>
+      <div className="rumo-form-row-3">
+        <div>
+          <label className="rumo-form-label" htmlFor="food-calories-input">
+            Calorias
+          </label>
+          <input
+            id="food-calories-input"
+            className="rumo-form-input rumo-form-input-secondary"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            placeholder="90"
+            value={calories}
+            onChange={(e) => setCalories(e.target.value)}
+          />
+        </div>
+        <div>
           <label className="rumo-form-label" htmlFor="food-serving-amount-input">
             Porção
           </label>
           <input
             id="food-serving-amount-input"
-            className="rumo-form-input"
+            className="rumo-form-input rumo-form-input-secondary"
             type="number"
             inputMode="decimal"
             step="0.1"
@@ -106,25 +112,41 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
             onChange={(e) => setServingAmount(e.target.value)}
           />
         </div>
-        <div style={{ flex: 1 }}>
-          <label className="rumo-form-label" htmlFor="food-serving-unit-input">
+        <div>
+          <label className="rumo-form-label" htmlFor="food-serving-unit-select">
             Unidade
           </label>
-          <input
-            id="food-serving-unit-input"
-            className="rumo-form-input rumo-form-input-secondary"
-            type="text"
-            placeholder="g"
-            list="food-serving-unit-suggestions"
+          <select
+            id="food-serving-unit-select"
+            className="rumo-form-select"
             value={servingUnit}
             onChange={(e) => setServingUnit(e.target.value)}
-          />
-          <datalist id="food-serving-unit-suggestions">
-            {SERVING_UNIT_SUGGESTIONS.map((unit) => (
-              <option key={unit} value={unit} />
+          >
+            {servingUnitOptions.map((unit) => (
+              <option key={unit} value={unit}>
+                {unit}
+              </option>
             ))}
-          </datalist>
+          </select>
         </div>
+      </div>
+      <div>
+        <label className="rumo-form-label" htmlFor="food-category-select">
+          Categoria (opcional)
+        </label>
+        <select
+          id="food-category-select"
+          className="rumo-form-select"
+          value={category}
+          onChange={(e) => setCategory(e.target.value as FoodCategory | '')}
+        >
+          <option value="">Sem categoria</option>
+          {FOOD_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {foodCategoryIcon(c)} {foodCategoryLabel(c)}
+            </option>
+          ))}
+        </select>
       </div>
       {error && <p className="rumo-form-error">{error}</p>}
       <Button type="submit" variant="success" size="lg" fullWidth disabled={saving}>

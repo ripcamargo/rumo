@@ -81,6 +81,17 @@
   text-align: left;
 }
 
+.rumo-form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--rumo-space-2);
+}
+
+.rumo-form-row-3 .rumo-form-input,
+.rumo-form-row-3 .rumo-form-select {
+  padding: var(--rumo-space-2);
+}
+
 .rumo-quick-amounts {
   display: flex;
   gap: var(--rumo-space-2);

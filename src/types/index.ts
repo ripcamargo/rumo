@@ -67,12 +67,28 @@ export interface Exercise {
   createdAt: Timestamp;
 }
 
+export const FOOD_CATEGORIES = [
+  'frutas',
+  'legumes_verduras',
+  'comida',
+  'fast_food',
+  'bebidas',
+  'laticinios',
+  'proteinas_carnes',
+  'graos_cereais',
+  'doces_sobremesas',
+  'snacks_petiscos',
+] as const;
+
+export type FoodCategory = (typeof FOOD_CATEGORIES)[number];
+
 export interface Food {
   id: string;
   name: string;
   calories: number;
   servingAmount: number;
   servingUnit: string;
+  category?: FoodCategory;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

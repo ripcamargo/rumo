@@ -8,9 +8,10 @@ interface WeightCardProps {
   delta14Days: number | null;
   trend: TrendResult;
   onRegister: () => void;
+  onOpenLog: () => void;
 }
 
-export function WeightCard({ latestWeight, delta14Days, trend, onRegister }: WeightCardProps) {
+export function WeightCard({ latestWeight, delta14Days, trend, onRegister, onOpenLog }: WeightCardProps) {
   if (latestWeight === null) {
     return (
       <Card className="rumo-metric-card">
@@ -32,12 +33,12 @@ export function WeightCard({ latestWeight, delta14Days, trend, onRegister }: Wei
 
   return (
     <Card className="rumo-metric-card">
-      <div className="rumo-metric-card-header">
+      <button type="button" className="rumo-metric-card-header rumo-metric-card-header-btn" onClick={onOpenLog}>
         <span className="rumo-metric-card-label">Peso atual</span>
         <span className="rumo-metric-card-emoji" aria-hidden="true">
           ⚖️
         </span>
-      </div>
+      </button>
       <p className="rumo-metric-card-value">
         {latestWeight.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}{' '}
         <span className="rumo-metric-card-value-goal">kg</span>

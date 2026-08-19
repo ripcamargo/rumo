@@ -6,11 +6,16 @@ import { useSelectedDate } from '../../contexts/SelectedDateContext';
 import { useFirestoreCollection } from '../../hooks/useFirestoreCollection';
 import { addCalorieEntry } from '../../services/firebase/firestore';
 import { combineDayWithCurrentTime } from '../../utils/dates';
-import { defaultMealTypeForHour, mealTypeLabel } from '../../utils/labels';
-import { MEAL_TYPES, type Food, type MealType } from '../../types';
+import { defaultMealTypeForHour, foodCategoryIcon, foodCategoryLabel, mealTypeLabel } from '../../utils/labels';
+import { FOOD_CATEGORIES, MEAL_TYPES, type Food, type FoodCategory, type MealType } from '../../types';
 import { Button } from '../common/Button';
 
-const CUSTOM_FOOD = 'custom';
+const OTHER_CATEGORY = 'outros' as const;
+const OTHER_ICON = '📦';
+const OTHER_LABEL = 'Outros';
+
+type Screen = 'categories' | 'foods' | 'selected' | 'custom';
+type ActiveCategory = FoodCategory | typeof OTHER_CATEGORY | null;
 
 export function CalorieForm({ onDone }: { onDone: () => void }) {
   const { user } = useAuth();
@@ -21,12 +26,25 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
   const { data: foods } = useFirestoreCollection<Food>(user?.uid, 'foods', [], 0, 'name');
 
   const [mealType, setMealType] = useState<MealType>(() => defaultMealTypeForHour(new Date().getHours()));
-  const [foodId, setFoodId] = useState(CUSTOM_FOOD);
+  const [screen, setScreen] = useState<Screen>('categories');
+  const [activeCategory, setActiveCategory] = useState<ActiveCategory>(null);
+  const [foodId, setFoodId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState('1');
   const [calories, setCalories] = useState('');
   const [mealName, setMealName] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const categoriesWithFoods = useMemo(
+    () => FOOD_CATEGORIES.filter((c) => foods.some((f) => f.category === c)),
+    [foods],
+  );
+  const hasUncategorized = useMemo(() => foods.some((f) => !f.category), [foods]);
+
+  const foodsInActiveCategory = useMemo(() => {
+    if (activeCategory === OTHER_CATEGORY) return foods.filter((f) => !f.category);
+    return foods.filter((f) => f.category === activeCategory);
+  }, [foods, activeCategory]);
 
   const selectedFood = useMemo(() => foods.find((f) => f.id === foodId), [foods, foodId]);
   const quantityValue = Number(quantity.replace(',', '.'));
@@ -34,14 +52,39 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
     ? Math.round(selectedFood.calories * quantityValue)
     : null;
 
+  function openCategory(category: ActiveCategory) {
+    setActiveCategory(category);
+    setScreen('foods');
+  }
+
+  function openFood(food: Food) {
+    setFoodId(food.id);
+    setQuantity('1');
+    setScreen('selected');
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!user) return;
 
-    const value = selectedFood ? computedCalories : Number(calories.replace(',', '.'));
-    const validQuantity = selectedFood ? quantityValue > 0 : true;
-    if (!value || Number.isNaN(value) || value <= 0 || !validQuantity) {
-      setError('Informe um valor de calorias válido.');
+    let value: number | null = null;
+    let name: string | undefined;
+
+    if (screen === 'selected' && selectedFood) {
+      value = computedCalories;
+      if (!value || Number.isNaN(value) || value <= 0 || !(quantityValue > 0)) {
+        setError('Informe uma quantidade válida.');
+        return;
+      }
+      name = selectedFood.name;
+    } else if (screen === 'custom') {
+      value = Number(calories.replace(',', '.'));
+      if (!value || Number.isNaN(value) || value <= 0) {
+        setError('Informe um valor de calorias válido.');
+        return;
+      }
+      name = mealName || undefined;
+    } else {
       return;
     }
 
@@ -50,11 +93,7 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
     try {
       await addCalorieEntry(
         user.uid,
-        {
-          calories: value,
-          mealType,
-          mealName: selectedFood ? selectedFood.name : mealName || undefined,
-        },
+        { calories: value, mealType, mealName: name },
         combineDayWithCurrentTime(selectedDate),
       );
       showToast(`${value} kcal registradas`);
@@ -91,29 +130,92 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
         </select>
       </div>
 
-      <div>
-        <label className="rumo-form-label" htmlFor="food-select">
-          Alimento
-        </label>
-        <select
-          id="food-select"
-          className="rumo-form-select"
-          value={foodId}
-          onChange={(e) => setFoodId(e.target.value)}
-        >
-          <option value={CUSTOM_FOOD}>Personalizado (informar valor)</option>
-          {foods.map((food) => (
-            <option key={food.id} value={food.id}>
-              {food.name} — {food.calories} kcal / {food.servingAmount} {food.servingUnit}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {selectedFood ? (
+      {screen === 'categories' && (
         <div>
-          <label className="rumo-form-label" htmlFor="quantity-input">
-            Quantidade (porções de {selectedFood.servingAmount} {selectedFood.servingUnit})
+          <label className="rumo-form-label">Alimento</label>
+          <div className="rumo-segmented">
+            <button type="button" className="rumo-segmented-item" onClick={() => setScreen('custom')}>
+              ✏️ Personalizado
+            </button>
+            {categoriesWithFoods.map((category) => (
+              <button
+                key={category}
+                type="button"
+                className="rumo-segmented-item"
+                onClick={() => openCategory(category)}
+              >
+                {foodCategoryIcon(category)} {foodCategoryLabel(category)}
+              </button>
+            ))}
+            {hasUncategorized && (
+              <button
+                type="button"
+                className="rumo-segmented-item"
+                onClick={() => openCategory(OTHER_CATEGORY)}
+              >
+                {OTHER_ICON} {OTHER_LABEL}
+              </button>
+            )}
+          </div>
+          {foods.length === 0 && (
+            <p style={{ margin: 'var(--rumo-space-2) 0 0', color: 'var(--rumo-text-secondary)', fontSize: 'var(--rumo-fs-sm)' }}>
+              Nenhum alimento cadastrado ainda.
+            </p>
+          )}
+        </div>
+      )}
+
+      {screen === 'foods' && (
+        <div>
+          <button
+            type="button"
+            className="rumo-form-link"
+            onClick={() => {
+              setScreen('categories');
+              setActiveCategory(null);
+            }}
+          >
+            ‹ Voltar
+          </button>
+          <label className="rumo-form-label" style={{ marginTop: 'var(--rumo-space-2)' }}>
+            {activeCategory === OTHER_CATEGORY
+              ? `${OTHER_ICON} ${OTHER_LABEL}`
+              : activeCategory && `${foodCategoryIcon(activeCategory)} ${foodCategoryLabel(activeCategory)}`}
+          </label>
+          <div className="rumo-segmented">
+            {foodsInActiveCategory.map((food) => (
+              <button
+                key={food.id}
+                type="button"
+                className="rumo-segmented-item"
+                onClick={() => openFood(food)}
+              >
+                {food.name} · {food.calories} kcal/{food.servingAmount}{food.servingUnit}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {screen === 'selected' && selectedFood && (
+        <div>
+          <button
+            type="button"
+            className="rumo-form-link"
+            onClick={() => {
+              setScreen('foods');
+              setFoodId(null);
+            }}
+          >
+            ‹ Trocar alimento
+          </button>
+          <label
+            className="rumo-form-label"
+            htmlFor="quantity-input"
+            style={{ marginTop: 'var(--rumo-space-2)' }}
+          >
+            {selectedFood.name} — Quantidade (porções de {selectedFood.servingAmount}{' '}
+            {selectedFood.servingUnit})
           </label>
           <input
             id="quantity-input"
@@ -130,8 +232,13 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
             <p className="rumo-form-food-total">Total: {computedCalories} kcal</p>
           )}
         </div>
-      ) : (
+      )}
+
+      {screen === 'custom' && (
         <>
+          <button type="button" className="rumo-form-link" onClick={() => setScreen('categories')}>
+            ‹ Voltar
+          </button>
           <div>
             <label className="rumo-form-label" htmlFor="calories-input">
               Calorias (kcal)
@@ -164,14 +271,19 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
         </>
       )}
 
-      <button type="button" className="rumo-form-link" onClick={goToFoodManagement}>
-        Gerenciar alimentos cadastrados
-      </button>
+      {screen === 'categories' && (
+        <button type="button" className="rumo-form-link" onClick={goToFoodManagement}>
+          Gerenciar alimentos cadastrados
+        </button>
+      )}
 
       {error && <p className="rumo-form-error">{error}</p>}
-      <Button type="submit" variant="success" size="lg" fullWidth disabled={saving}>
-        {saving ? 'Salvando...' : 'Salvar'}
-      </Button>
+
+      {(screen === 'selected' || screen === 'custom') && (
+        <Button type="submit" variant="success" size="lg" fullWidth disabled={saving}>
+          {saving ? 'Salvando...' : 'Salvar'}
+        </Button>
+      )}
     </form>
   );
 }

@@ -53,3 +53,10 @@
   background: rgba(75, 178, 145, 0.12);
   cursor: pointer;
 }
+
+@media (max-width: 767px) {
+  .rumo-day-selector {
+    width: 100%;
+    justify-content: center;
+  }
+}

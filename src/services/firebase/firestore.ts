@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -20,6 +21,7 @@ import type {
   CalorieEntry,
   Exercise,
   Food,
+  FoodCategory,
   MealType,
   UserProfile,
   WaterEntry,
@@ -82,6 +84,19 @@ function sinceConstraint(since?: Date): QueryConstraint[] {
   return since ? [where('recordedAt', '>=', Timestamp.fromDate(since))] : [];
 }
 
+function updateEntry(
+  userId: string,
+  subcollectionName: string,
+  entryId: string,
+  data: Record<string, unknown>,
+) {
+  return updateDoc(doc(db, 'users', userId, subcollectionName, entryId), stripUndefined(data));
+}
+
+function deleteEntry(userId: string, subcollectionName: string, entryId: string) {
+  return deleteDoc(doc(db, 'users', userId, subcollectionName, entryId));
+}
+
 // Peso
 export async function addWeightEntry(userId: string, weight: number, recordedAt: Date) {
   await addDoc(userSubcollection(userId, 'weightEntries'), {
@@ -95,6 +110,14 @@ export function getWeightEntries(userId: string, since?: Date) {
   return fetchEntries<WeightEntry>(userId, 'weightEntries', sinceConstraint(since));
 }
 
+export function updateWeightEntry(userId: string, entryId: string, data: Partial<{ weight: number }>) {
+  return updateEntry(userId, 'weightEntries', entryId, data);
+}
+
+export function deleteWeightEntry(userId: string, entryId: string) {
+  return deleteEntry(userId, 'weightEntries', entryId);
+}
+
 // Água
 export async function addWaterEntry(userId: string, amountMl: number, recordedAt: Date) {
   await addDoc(userSubcollection(userId, 'waterEntries'), {
@@ -106,6 +129,14 @@ export async function addWaterEntry(userId: string, amountMl: number, recordedAt
 
 export function getWaterEntries(userId: string, since?: Date) {
   return fetchEntries<WaterEntry>(userId, 'waterEntries', sinceConstraint(since));
+}
+
+export function updateWaterEntry(userId: string, entryId: string, data: Partial<{ amountMl: number }>) {
+  return updateEntry(userId, 'waterEntries', entryId, data);
+}
+
+export function deleteWaterEntry(userId: string, entryId: string) {
+  return deleteEntry(userId, 'waterEntries', entryId);
 }
 
 // Calorias
@@ -123,6 +154,28 @@ export async function addCalorieEntry(
 
 export function getCalorieEntries(userId: string, since?: Date) {
   return fetchEntries<CalorieEntry>(userId, 'calorieEntries', sinceConstraint(since));
+}
+
+export async function updateCalorieEntry(
+  userId: string,
+  entryId: string,
+  data: Partial<{
+    calories: number;
+    /** `null` remove o campo opcional; `undefined` o deixa inalterado. */
+    mealType: MealType | null;
+    mealName: string | null;
+  }>,
+) {
+  const { mealType, mealName, ...rest } = data;
+  await updateDoc(doc(db, 'users', userId, 'calorieEntries', entryId), {
+    ...stripUndefined(rest),
+    ...(mealType !== undefined ? { mealType: mealType ?? deleteField() } : {}),
+    ...(mealName !== undefined ? { mealName: mealName ?? deleteField() } : {}),
+  });
+}
+
+export function deleteCalorieEntry(userId: string, entryId: string) {
+  return deleteEntry(userId, 'calorieEntries', entryId);
 }
 
 // Medidas corporais
@@ -161,13 +214,31 @@ export function getExercises(userId: string, since?: Date) {
   return fetchEntries<Exercise>(userId, 'exercises', sinceConstraint(since));
 }
 
+export function updateExercise(
+  userId: string,
+  entryId: string,
+  data: Partial<{ activity: string; durationMinutes: number }>,
+) {
+  return updateEntry(userId, 'exercises', entryId, data);
+}
+
+export function deleteExercise(userId: string, entryId: string) {
+  return deleteEntry(userId, 'exercises', entryId);
+}
+
 // Alimentos favoritos
 export async function addFood(
   userId: string,
-  data: { name: string; calories: number; servingAmount: number; servingUnit: string },
+  data: {
+    name: string;
+    calories: number;
+    servingAmount: number;
+    servingUnit: string;
+    category?: FoodCategory;
+  },
 ) {
   await addDoc(userSubcollection(userId, 'foods'), {
-    ...data,
+    ...stripUndefined(data),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -176,10 +247,19 @@ export async function addFood(
 export async function updateFood(
   userId: string,
   foodId: string,
-  data: Partial<{ name: string; calories: number; servingAmount: number; servingUnit: string }>,
+  data: Partial<{
+    name: string;
+    calories: number;
+    servingAmount: number;
+    servingUnit: string;
+    /** `null` remove a categoria (campo opcional); `undefined` a deixa inalterada. */
+    category: FoodCategory | null;
+  }>,
 ) {
+  const { category, ...rest } = data;
   await updateDoc(doc(db, 'users', userId, 'foods', foodId), {
-    ...stripUndefined(data),
+    ...stripUndefined(rest),
+    ...(category !== undefined ? { category: category ?? deleteField() } : {}),
     updatedAt: serverTimestamp(),
   });
 }

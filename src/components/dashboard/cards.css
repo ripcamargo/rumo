@@ -10,6 +10,24 @@
   justify-content: space-between;
 }
 
+.rumo-metric-card-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rumo-metric-card-header-btn:hover .rumo-metric-card-label {
+  color: var(--rumo-navy);
+}
+
 .rumo-metric-card-label {
   font-size: var(--rumo-fs-sm);
   font-weight: var(--rumo-fw-medium);
@@ -174,4 +192,77 @@
   .rumo-dashboard-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+.rumo-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rumo-log-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  padding: var(--rumo-space-2) 0;
+  border-bottom: 1px solid var(--rumo-border);
+}
+
+.rumo-log-item:last-child {
+  border-bottom: none;
+}
+
+.rumo-log-item-summary {
+  display: block;
+  font-weight: var(--rumo-fw-medium);
+  color: var(--rumo-text-primary);
+}
+
+.rumo-log-item-time {
+  display: block;
+  font-size: var(--rumo-fs-sm);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-log-item-actions {
+  display: flex;
+  gap: var(--rumo-space-2);
+  flex-shrink: 0;
+}
+
+.rumo-log-item-action {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  padding: var(--rumo-space-1);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rumo-log-item-action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.rumo-log-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-2);
+  width: 100%;
+}
+
+.rumo-log-edit-row {
+  display: flex;
+  gap: var(--rumo-space-2);
+}
+
+.rumo-log-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--rumo-space-3);
+  justify-content: flex-end;
 }

@@ -11,10 +11,12 @@ export function WaterCard({
   consumedMl,
   goalMl,
   recordedAt,
+  onOpenLog,
 }: {
   consumedMl: number;
   goalMl: number;
   recordedAt: Date;
+  onOpenLog: () => void;
 }) {
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -36,12 +38,12 @@ export function WaterCard({
 
   return (
     <Card className="rumo-metric-card">
-      <div className="rumo-metric-card-header">
+      <button type="button" className="rumo-metric-card-header rumo-metric-card-header-btn" onClick={onOpenLog}>
         <span className="rumo-metric-card-label">Água</span>
         <span className="rumo-metric-card-emoji" aria-hidden="true">
           💧
         </span>
-      </div>
+      </button>
       <p className="rumo-metric-card-value">
         {(consumedMl / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}{' '}
         <span className="rumo-metric-card-value-goal">

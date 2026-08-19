@@ -9,6 +9,7 @@ import { Loading } from '../components/common/Loading';
 import { EmptyState } from '../components/common/EmptyState';
 import { Modal } from '../components/common/Modal';
 import { FoodForm } from '../components/foods/FoodForm';
+import { foodCategoryIcon, foodCategoryLabel } from '../utils/labels';
 import type { Food } from '../types';
 import '../components/dashboard/cards.css';
 import './Foods.css';
@@ -75,9 +76,13 @@ export default function Foods() {
             {foods.map((food) => (
               <li key={food.id} className="rumo-food-item">
                 <div>
-                  <span className="rumo-food-item-name">{food.name}</span>
+                  <span className="rumo-food-item-name">
+                    {food.category && `${foodCategoryIcon(food.category)} `}
+                    {food.name}
+                  </span>
                   <span className="rumo-food-item-detail">
                     {food.calories} kcal / {food.servingAmount} {food.servingUnit}
+                    {food.category && ` · ${foodCategoryLabel(food.category)}`}
                   </span>
                 </div>
                 <div className="rumo-food-item-actions">

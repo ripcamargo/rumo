@@ -53,7 +53,7 @@ export function DaySelector() {
         <span>{formatDate(selectedDate)}</span>
         {!isViewingToday && (
           <button type="button" className="rumo-day-selector-today-btn" onClick={resetToToday}>
-            Voltar para hoje
+            Hoje
           </button>
         )}
       </span>
@@ -66,6 +66,8 @@ export function DaySelector() {
       >
         ›
       </button>
+    
+      
     </div>
   );
 }

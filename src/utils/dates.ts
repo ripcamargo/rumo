@@ -78,6 +78,12 @@ export function formatShortDate(date: Date): string {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' }).format(date);
 }
 
+const TIME_FORMATTER = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+export function formatTime(date: Date): string {
+  return TIME_FORMATTER.format(date);
+}
+
 export function getGreeting(date: Date = new Date()): string {
   const hour = date.getHours();
   if (hour < 12) return 'Bom dia';

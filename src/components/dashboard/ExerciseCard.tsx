@@ -7,19 +7,21 @@ export function ExerciseCard({
   exercises,
   isToday,
   onRegister,
+  onOpenLog,
 }: {
   exercises: Exercise[];
   isToday: boolean;
   onRegister: () => void;
+  onOpenLog: () => void;
 }) {
   return (
     <Card className="rumo-metric-card">
-      <div className="rumo-metric-card-header">
+      <button type="button" className="rumo-metric-card-header rumo-metric-card-header-btn" onClick={onOpenLog}>
         <span className="rumo-metric-card-label">{isToday ? 'Exercícios de hoje' : 'Exercícios do dia'}</span>
         <span className="rumo-metric-card-emoji" aria-hidden="true">
           🏃
         </span>
-      </div>
+      </button>
       {exercises.length === 0 ? (
         <EmptyState
           icon="🏃"

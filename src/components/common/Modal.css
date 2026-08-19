@@ -3,7 +3,7 @@
   inset: 0;
   background: rgba(23, 40, 59, 0.45);
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1050;
   animation: rumo-fade-in 0.15s ease;
@@ -13,11 +13,11 @@
   background: var(--rumo-surface);
   width: 100%;
   max-width: 480px;
-  border-radius: var(--rumo-radius-lg) var(--rumo-radius-lg) 0 0;
-  padding: var(--rumo-space-3) var(--rumo-space-5) calc(var(--rumo-space-6) + env(safe-area-inset-bottom));
+  border-radius: 0 0 var(--rumo-radius-lg) var(--rumo-radius-lg);
+  padding: calc(var(--rumo-space-3) + env(safe-area-inset-top)) var(--rumo-space-5) var(--rumo-space-6);
   max-height: 88vh;
   overflow-y: auto;
-  animation: rumo-slide-up 0.22s ease;
+  animation: rumo-slide-down 0.22s ease;
 }
 
 .rumo-modal-handle {
@@ -70,9 +70,9 @@
   }
 }
 
-@keyframes rumo-slide-up {
+@keyframes rumo-slide-down {
   from {
-    transform: translateY(24px);
+    transform: translateY(-24px);
     opacity: 0.6;
   }
   to {

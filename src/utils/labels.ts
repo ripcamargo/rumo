@@ -1,4 +1,4 @@
-import type { MealType, MeasurementType } from '../types';
+import type { FoodCategory, MealType, MeasurementType } from '../types';
 
 const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
   cintura: 'Cintura',
@@ -30,4 +30,38 @@ export function defaultMealTypeForHour(hour: number): MealType {
   if (hour < 15) return 'almoco';
   if (hour < 18) return 'cafe_tarde';
   return 'jantar';
+}
+
+const FOOD_CATEGORY_LABELS: Record<FoodCategory, string> = {
+  frutas: 'Frutas',
+  legumes_verduras: 'Legumes/Verduras',
+  comida: 'Comida',
+  fast_food: 'Fast-food',
+  bebidas: 'Bebidas',
+  laticinios: 'Laticínios',
+  proteinas_carnes: 'Proteínas/Carnes',
+  graos_cereais: 'Grãos/Cereais',
+  doces_sobremesas: 'Doces/Sobremesas',
+  snacks_petiscos: 'Snacks/Petiscos',
+};
+
+const FOOD_CATEGORY_ICONS: Record<FoodCategory, string> = {
+  frutas: '🍎',
+  legumes_verduras: '🥦',
+  comida: '🍽️',
+  fast_food: '🍔',
+  bebidas: '🥤',
+  laticinios: '🧀',
+  proteinas_carnes: '🍗',
+  graos_cereais: '🌾',
+  doces_sobremesas: '🍰',
+  snacks_petiscos: '🍿',
+};
+
+export function foodCategoryLabel(category: FoodCategory): string {
+  return FOOD_CATEGORY_LABELS[category];
+}
+
+export function foodCategoryIcon(category: FoodCategory): string {
+  return FOOD_CATEGORY_ICONS[category];
 }
