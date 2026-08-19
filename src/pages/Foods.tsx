@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useFirestoreCollection } from '../hooks/useFirestoreCollection';
@@ -9,15 +10,23 @@ import { Loading } from '../components/common/Loading';
 import { EmptyState } from '../components/common/EmptyState';
 import { Modal } from '../components/common/Modal';
 import { FoodForm } from '../components/foods/FoodForm';
-import { foodCategoryIcon, foodCategoryLabel } from '../utils/labels';
-import type { Food } from '../types';
+import type { Food, FoodCategory } from '../types';
 import '../components/dashboard/cards.css';
 import './Foods.css';
 
 export default function Foods() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const { data: foods, loading } = useFirestoreCollection<Food>(user?.uid, 'foods', [], 0, 'name');
+  const { data: categories } = useFirestoreCollection<FoodCategory>(
+    user?.uid,
+    'foodCategories',
+    [],
+    0,
+    'name',
+  );
+  const categoriesById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
   const [editing, setEditing] = useState<Food | undefined>(undefined);
   const [formOpen, setFormOpen] = useState(false);
@@ -50,9 +59,14 @@ export default function Foods() {
     <div>
       <header className="rumo-history-header">
         <h1 className="rumo-page-title">Meus alimentos</h1>
-        <Button variant="success" onClick={openNew}>
-          + Novo alimento
-        </Button>
+        <div style={{ display: 'flex', gap: 'var(--rumo-space-2)' }}>
+          <Button variant="outline" onClick={() => navigate('/categorias-alimentos')}>
+            Categorias
+          </Button>
+          <Button variant="success" onClick={openNew}>
+            + Novo alimento
+          </Button>
+        </div>
       </header>
 
       {loading ? (
@@ -73,39 +87,42 @@ export default function Foods() {
       ) : (
         <Card>
           <ul className="rumo-food-list">
-            {foods.map((food) => (
-              <li key={food.id} className="rumo-food-item">
-                <div>
-                  <span className="rumo-food-item-name">
-                    {food.category && `${foodCategoryIcon(food.category)} `}
-                    {food.name}
-                  </span>
-                  <span className="rumo-food-item-detail">
-                    {food.calories} kcal / {food.servingAmount} {food.servingUnit}
-                    {food.category && ` · ${foodCategoryLabel(food.category)}`}
-                  </span>
-                </div>
-                <div className="rumo-food-item-actions">
-                  <button
-                    type="button"
-                    className="rumo-food-item-action"
-                    aria-label={`Editar ${food.name}`}
-                    onClick={() => openEdit(food)}
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    type="button"
-                    className="rumo-food-item-action"
-                    aria-label={`Remover ${food.name}`}
-                    disabled={deletingId === food.id}
-                    onClick={() => void handleDelete(food)}
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </li>
-            ))}
+            {foods.map((food) => {
+              const category = food.categoryId ? categoriesById.get(food.categoryId) : undefined;
+              return (
+                <li key={food.id} className="rumo-food-item">
+                  <div>
+                    <span className="rumo-food-item-name">
+                      {category?.icon && `${category.icon} `}
+                      {food.name}
+                    </span>
+                    <span className="rumo-food-item-detail">
+                      {food.calories} kcal / {food.servingAmount} {food.servingUnit}
+                      {category && ` · ${category.name}`}
+                    </span>
+                  </div>
+                  <div className="rumo-food-item-actions">
+                    <button
+                      type="button"
+                      className="rumo-food-item-action"
+                      aria-label={`Editar ${food.name}`}
+                      onClick={() => openEdit(food)}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      type="button"
+                      className="rumo-food-item-action"
+                      aria-label={`Remover ${food.name}`}
+                      disabled={deletingId === food.id}
+                      onClick={() => void handleDelete(food)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </Card>
       )}

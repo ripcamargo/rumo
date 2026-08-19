@@ -234,7 +234,7 @@ export async function addFood(
     calories: number;
     servingAmount: number;
     servingUnit: string;
-    category?: FoodCategory;
+    categoryId?: string;
   },
 ) {
   await addDoc(userSubcollection(userId, 'foods'), {
@@ -253,13 +253,13 @@ export async function updateFood(
     servingAmount: number;
     servingUnit: string;
     /** `null` remove a categoria (campo opcional); `undefined` a deixa inalterada. */
-    category: FoodCategory | null;
+    categoryId: string | null;
   }>,
 ) {
-  const { category, ...rest } = data;
+  const { categoryId, ...rest } = data;
   await updateDoc(doc(db, 'users', userId, 'foods', foodId), {
     ...stripUndefined(rest),
-    ...(category !== undefined ? { category: category ?? deleteField() } : {}),
+    ...(categoryId !== undefined ? { categoryId: categoryId ?? deleteField() } : {}),
     updatedAt: serverTimestamp(),
   });
 }
@@ -272,4 +272,36 @@ export async function getFoods(userId: string): Promise<Food[]> {
   const q = query(userSubcollection(userId, 'foods'), orderBy('name', 'asc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Food, 'id'>) }));
+}
+
+// Categorias de alimentos
+export async function addFoodCategory(userId: string, data: { name: string; icon?: string }) {
+  await addDoc(userSubcollection(userId, 'foodCategories'), {
+    ...stripUndefined(data),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateFoodCategory(
+  userId: string,
+  categoryId: string,
+  data: Partial<{ name: string; /** `null` remove o ícone (campo opcional); `undefined` o deixa inalterado. */ icon: string | null }>,
+) {
+  const { icon, ...rest } = data;
+  await updateDoc(doc(db, 'users', userId, 'foodCategories', categoryId), {
+    ...stripUndefined(rest),
+    ...(icon !== undefined ? { icon: icon ?? deleteField() } : {}),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteFoodCategory(userId: string, categoryId: string) {
+  await deleteDoc(doc(db, 'users', userId, 'foodCategories', categoryId));
+}
+
+export async function getFoodCategories(userId: string): Promise<FoodCategory[]> {
+  const q = query(userSubcollection(userId, 'foodCategories'), orderBy('name', 'asc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<FoodCategory, 'id'>) }));
 }

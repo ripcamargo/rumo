@@ -6,8 +6,8 @@ import { useSelectedDate } from '../../contexts/SelectedDateContext';
 import { useFirestoreCollection } from '../../hooks/useFirestoreCollection';
 import { addCalorieEntry } from '../../services/firebase/firestore';
 import { combineDayWithCurrentTime } from '../../utils/dates';
-import { defaultMealTypeForHour, foodCategoryIcon, foodCategoryLabel, mealTypeLabel } from '../../utils/labels';
-import { FOOD_CATEGORIES, MEAL_TYPES, type Food, type FoodCategory, type MealType } from '../../types';
+import { defaultMealTypeForHour, mealTypeLabel } from '../../utils/labels';
+import { MEAL_TYPES, type Food, type FoodCategory, type MealType } from '../../types';
 import { Button } from '../common/Button';
 
 const OTHER_CATEGORY = 'outros' as const;
@@ -15,7 +15,7 @@ const OTHER_ICON = '📦';
 const OTHER_LABEL = 'Outros';
 
 type Screen = 'categories' | 'foods' | 'selected' | 'custom';
-type ActiveCategory = FoodCategory | typeof OTHER_CATEGORY | null;
+type ActiveCategory = string | typeof OTHER_CATEGORY | null;
 
 export function CalorieForm({ onDone }: { onDone: () => void }) {
   const { user } = useAuth();
@@ -24,6 +24,13 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
   const navigate = useNavigate();
 
   const { data: foods } = useFirestoreCollection<Food>(user?.uid, 'foods', [], 0, 'name');
+  const { data: categories } = useFirestoreCollection<FoodCategory>(
+    user?.uid,
+    'foodCategories',
+    [],
+    0,
+    'name',
+  );
 
   const [mealType, setMealType] = useState<MealType>(() => defaultMealTypeForHour(new Date().getHours()));
   const [screen, setScreen] = useState<Screen>('categories');
@@ -36,14 +43,18 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
   const [error, setError] = useState<string | null>(null);
 
   const categoriesWithFoods = useMemo(
-    () => FOOD_CATEGORIES.filter((c) => foods.some((f) => f.category === c)),
-    [foods],
+    () => categories.filter((c) => foods.some((f) => f.categoryId === c.id)),
+    [categories, foods],
   );
-  const hasUncategorized = useMemo(() => foods.some((f) => !f.category), [foods]);
+  const hasUncategorized = useMemo(() => foods.some((f) => !f.categoryId), [foods]);
+  const activeCategoryObj = useMemo(
+    () => categories.find((c) => c.id === activeCategory),
+    [categories, activeCategory],
+  );
 
   const foodsInActiveCategory = useMemo(() => {
-    if (activeCategory === OTHER_CATEGORY) return foods.filter((f) => !f.category);
-    return foods.filter((f) => f.category === activeCategory);
+    if (activeCategory === OTHER_CATEGORY) return foods.filter((f) => !f.categoryId);
+    return foods.filter((f) => f.categoryId === activeCategory);
   }, [foods, activeCategory]);
 
   const selectedFood = useMemo(() => foods.find((f) => f.id === foodId), [foods, foodId]);
@@ -139,12 +150,13 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
             </button>
             {categoriesWithFoods.map((category) => (
               <button
-                key={category}
+                key={category.id}
                 type="button"
                 className="rumo-segmented-item"
-                onClick={() => openCategory(category)}
+                onClick={() => openCategory(category.id)}
               >
-                {foodCategoryIcon(category)} {foodCategoryLabel(category)}
+                {category.icon && `${category.icon} `}
+                {category.name}
               </button>
             ))}
             {hasUncategorized && (
@@ -180,7 +192,7 @@ export function CalorieForm({ onDone }: { onDone: () => void }) {
           <label className="rumo-form-label" style={{ marginTop: 'var(--rumo-space-2)' }}>
             {activeCategory === OTHER_CATEGORY
               ? `${OTHER_ICON} ${OTHER_LABEL}`
-              : activeCategory && `${foodCategoryIcon(activeCategory)} ${foodCategoryLabel(activeCategory)}`}
+              : activeCategoryObj && `${activeCategoryObj.icon ? `${activeCategoryObj.icon} ` : ''}${activeCategoryObj.name}`}
           </label>
           <div className="rumo-segmented">
             {foodsInActiveCategory.map((food) => (

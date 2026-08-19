@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useFirestoreCollection } from '../../hooks/useFirestoreCollection';
 import { addFood, updateFood } from '../../services/firebase/firestore';
 import { Button } from '../common/Button';
-import { FOOD_CATEGORIES, type Food, type FoodCategory } from '../../types';
-import { foodCategoryIcon, foodCategoryLabel } from '../../utils/labels';
+import type { Food, FoodCategory } from '../../types';
 import '../registration/QuickRegister.css';
 
 const SERVING_UNITS = ['unid.', 'g', 'ml'];
@@ -12,11 +13,20 @@ const SERVING_UNITS = ['unid.', 'g', 'ml'];
 export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
+  const { data: categories } = useFirestoreCollection<FoodCategory>(
+    user?.uid,
+    'foodCategories',
+    [],
+    0,
+    'name',
+  );
+
   const [name, setName] = useState(food?.name ?? '');
   const [calories, setCalories] = useState(food ? String(food.calories) : '');
   const [servingAmount, setServingAmount] = useState(food ? String(food.servingAmount) : '100');
   const [servingUnit, setServingUnit] = useState(food?.servingUnit ?? 'g');
-  const [category, setCategory] = useState<FoodCategory | ''>(food?.category ?? '');
+  const [categoryId, setCategoryId] = useState(food?.categoryId ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,9 +61,9 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
         servingUnit: servingUnit.trim(),
       };
       if (food) {
-        await updateFood(user.uid, food.id, { ...data, category: category || null });
+        await updateFood(user.uid, food.id, { ...data, categoryId: categoryId || null });
       } else {
-        await addFood(user.uid, { ...data, category: category || undefined });
+        await addFood(user.uid, { ...data, categoryId: categoryId || undefined });
       }
       showToast(food ? 'Alimento atualizado' : 'Alimento cadastrado');
       onDone();
@@ -62,6 +72,11 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
     } finally {
       setSaving(false);
     }
+  }
+
+  function goToCategoryManagement() {
+    onDone();
+    navigate('/categorias-alimentos');
   }
 
   return (
@@ -137,16 +152,20 @@ export function FoodForm({ food, onDone }: { food?: Food; onDone: () => void }) 
         <select
           id="food-category-select"
           className="rumo-form-select"
-          value={category}
-          onChange={(e) => setCategory(e.target.value as FoodCategory | '')}
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
         >
           <option value="">Sem categoria</option>
-          {FOOD_CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {foodCategoryIcon(c)} {foodCategoryLabel(c)}
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.icon && `${category.icon} `}
+              {category.name}
             </option>
           ))}
         </select>
+        <button type="button" className="rumo-form-link" style={{ marginTop: 'var(--rumo-space-2)' }} onClick={goToCategoryManagement}>
+          Gerenciar categorias
+        </button>
       </div>
       {error && <p className="rumo-form-error">{error}</p>}
       <Button type="submit" variant="success" size="lg" fullWidth disabled={saving}>
