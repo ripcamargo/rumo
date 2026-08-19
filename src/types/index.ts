@@ -25,9 +25,14 @@ export interface WaterEntry {
   createdAt: Timestamp;
 }
 
+export const MEAL_TYPES = ['cafe_manha', 'almoco', 'cafe_tarde', 'jantar'] as const;
+
+export type MealType = (typeof MEAL_TYPES)[number];
+
 export interface CalorieEntry {
   id: string;
   calories: number;
+  mealType?: MealType;
   mealName?: string;
   notes?: string;
   recordedAt: Timestamp;

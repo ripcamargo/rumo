@@ -129,3 +129,40 @@
   color: var(--rumo-danger);
   font-size: var(--rumo-fs-sm);
 }
+
+.rumo-form-select {
+  width: 100%;
+  font-size: var(--rumo-fs-md);
+  font-weight: var(--rumo-fw-regular);
+  padding: var(--rumo-space-3);
+  border-radius: var(--rumo-radius-md);
+  border: 1px solid var(--rumo-border);
+  color: var(--rumo-text-primary);
+  background: var(--rumo-bg);
+  text-align: left;
+}
+
+.rumo-form-select:focus {
+  outline: none;
+  border-color: var(--rumo-mint);
+  box-shadow: 0 0 0 3px rgba(75, 178, 145, 0.18);
+}
+
+.rumo-form-food-total {
+  font-size: var(--rumo-fs-md);
+  font-weight: var(--rumo-fw-semibold);
+  color: var(--rumo-navy);
+  margin: 0;
+}
+
+.rumo-form-link {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--rumo-mint-dark);
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-medium);
+  cursor: pointer;
+  text-decoration: underline;
+}

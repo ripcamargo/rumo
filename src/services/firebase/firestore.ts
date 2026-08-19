@@ -20,6 +20,7 @@ import type {
   CalorieEntry,
   Exercise,
   Food,
+  MealType,
   UserProfile,
   WaterEntry,
   WeightEntry,
@@ -110,7 +111,7 @@ export function getWaterEntries(userId: string, since?: Date) {
 // Calorias
 export async function addCalorieEntry(
   userId: string,
-  data: { calories: number; mealName?: string; notes?: string },
+  data: { calories: number; mealType?: MealType; mealName?: string; notes?: string },
   recordedAt: Date,
 ) {
   await addDoc(userSubcollection(userId, 'calorieEntries'), {

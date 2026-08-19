@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import History from './pages/History';
 import Measurements from './pages/Measurements';
 import Exercises from './pages/Exercises';
+import Foods from './pages/Foods';
 import Settings from './pages/Settings';
 
 export default function App() {
@@ -59,6 +60,7 @@ export default function App() {
                   <Route path="/historico" element={<History />} />
                   <Route path="/medidas" element={<Measurements />} />
                   <Route path="/exercicios" element={<Exercises />} />
+                  <Route path="/alimentos" element={<Foods />} />
                   <Route path="/configuracoes" element={<Settings />} />
                 </Route>
               </Routes>

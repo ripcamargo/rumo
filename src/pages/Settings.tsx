@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useToast } from '../contexts/ToastContext';
@@ -15,6 +15,7 @@ export default function Settings() {
   const { profile, loading } = useUserProfile(user?.uid);
   const { showToast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   const isOnboarding = Boolean((location.state as { onboarding?: boolean } | null)?.onboarding);
 
   const [form, setForm] = useState({
@@ -149,6 +150,16 @@ export default function Settings() {
           {saving ? 'Salvando...' : 'Salvar alterações'}
         </Button>
       </form>
+
+      <Card className="rumo-settings-section">
+        <h2 className="rumo-settings-section-title">Alimentos cadastrados</h2>
+        <p style={{ margin: '0 0 var(--rumo-space-4)', color: 'var(--rumo-text-secondary)' }}>
+          Cadastre alimentos com as calorias por porção para registrar o consumo mais rápido.
+        </p>
+        <Button variant="outline" size="lg" fullWidth onClick={() => navigate('/alimentos')}>
+          Gerenciar alimentos
+        </Button>
+      </Card>
 
       <Button variant="outline" size="lg" fullWidth onClick={() => void logout()} className="rumo-logout-btn">
         Sair da conta
