@@ -21,6 +21,18 @@
   margin: 0 0 var(--rumo-space-4);
 }
 
+.rumo-settings-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-settings-section-header .rumo-settings-section-title {
+  margin-bottom: 0;
+}
+
 .rumo-settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -36,19 +48,57 @@
   color: var(--rumo-text-secondary);
 }
 
-.rumo-settings-field input {
+.rumo-settings-field input,
+.rumo-settings-field select {
   padding: var(--rumo-space-3);
   border-radius: var(--rumo-radius-md);
   border: 1px solid var(--rumo-border);
   font-size: var(--rumo-fs-md);
   font-weight: var(--rumo-fw-regular);
   color: var(--rumo-text-primary);
+  background-color: var(--rumo-surface);
+  font-family: inherit;
 }
 
-.rumo-settings-field input:focus {
+.rumo-settings-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--rumo-space-8);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23687784' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--rumo-space-3) center;
+  cursor: pointer;
+}
+
+.rumo-settings-field input:focus,
+.rumo-settings-field select:focus {
   outline: none;
   border-color: var(--rumo-mint);
   box-shadow: 0 0 0 3px rgba(75, 178, 145, 0.18);
+}
+
+.rumo-settings-view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--rumo-space-4);
+}
+
+.rumo-settings-view-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-1);
+}
+
+.rumo-settings-view-item span:first-child {
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-medium);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-settings-view-item span:last-child {
+  font-size: var(--rumo-fs-md);
+  font-weight: var(--rumo-fw-semibold);
+  color: var(--rumo-text-primary);
 }
 
 .rumo-logout-btn {
@@ -56,7 +106,8 @@
 }
 
 @media (max-width: 480px) {
-  .rumo-settings-grid {
+  .rumo-settings-grid,
+  .rumo-settings-view-grid {
     grid-template-columns: 1fr;
   }
 }

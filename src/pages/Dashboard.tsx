@@ -27,9 +27,19 @@ import {
   deleteWeightEntry,
 } from '../services/firebase/firestore';
 import { combineDayWithCurrentTime, getDaysAgo, getStartOfNextDay, getGreeting } from '../utils/dates';
-import { calculateTrend, findClosestPoint } from '../utils/calculations';
+import {
+  calculateAge,
+  calculateBmi,
+  calculateCalorieGoal,
+  calculateMifflinStJeor,
+  calculateReferenceWeight,
+  calculateTdee,
+  calculateTrend,
+  classifyBmi,
+  findClosestPoint,
+} from '../utils/calculations';
 import { mealTypeLabel } from '../utils/labels';
-import type { CalorieEntry, Exercise, WaterEntry, WeightEntry } from '../types';
+import type { ActivityLevel, CalorieEntry, Exercise, WaterEntry, WeightEntry } from '../types';
 import '../components/dashboard/cards.css';
 
 const WEIGHT_HISTORY_DAYS = 90;
@@ -95,7 +105,7 @@ export default function Dashboard() {
     weight: entry.weight,
     recordedAt: entry.recordedAt.toDate(),
   }));
-  const latestWeight = weightEntries[0]?.weight ?? null;
+  const latestWeight = weightEntries[0]?.weight ?? profile?.initialWeight ?? null;
   const trend = calculateTrend(weightPoints);
   const delta14Days = (() => {
     if (!trend.hasTrend || latestWeight === null) return null;
@@ -103,6 +113,20 @@ export default function Dashboard() {
     const closest = findClosestPoint(weightPoints, target);
     return closest ? latestWeight - closest.weight : null;
   })();
+
+  const age = profile?.birthDate ? calculateAge(profile.birthDate.toDate()) : 0;
+  const heightCm = profile?.height ?? 0;
+  const currentWeight = latestWeight;
+  const bmi = currentWeight && heightCm ? calculateBmi(currentWeight, heightCm) : 0;
+  const bmiClassification = bmi > 0 ? classifyBmi(bmi) : null;
+  const suggestedGoalWeight = heightCm ? calculateReferenceWeight(heightCm) : 0;
+  const activeGoalWeight = profile?.goalWeight && profile.goalWeight > 0 ? profile.goalWeight : suggestedGoalWeight;
+  const activityLevel: ActivityLevel = profile?.activityLevel ?? 'moderately_active';
+  const bmr = currentWeight && heightCm && age && profile?.sex
+    ? calculateMifflinStJeor({ sex: profile.sex, weightKg: currentWeight, heightCm, ageYears: age })
+    : 0;
+  const tdee = bmr > 0 ? calculateTdee(bmr, activityLevel) : 0;
+  const dailyCalorieGoal = profile?.dailyCalorieGoal && profile.dailyCalorieGoal > 0 ? profile.dailyCalorieGoal : (tdee > 0 ? calculateCalorieGoal(tdee) : 0);
 
   if (loading) {
     return <Loading label="Carregando seu painel..." />;
@@ -121,7 +145,7 @@ export default function Dashboard() {
       <div className="rumo-dashboard-grid">
         <CalorieCard
           consumed={caloriesConsumed}
-          goal={profile?.dailyCalorieGoal ?? 0}
+          goal={dailyCalorieGoal}
           onOpenLog={() => setLogType('calorias')}
         />
         <WaterCard
@@ -138,9 +162,16 @@ export default function Dashboard() {
           onOpenLog={() => setLogType('peso')}
         />
         <ProgressCard
-          initialWeight={profile?.initialWeight ?? 0}
-          currentWeight={latestWeight}
-          goalWeight={profile?.goalWeight ?? 0}
+          initialWeight={profile?.initialWeight && profile.initialWeight > 0 ? profile.initialWeight : currentWeight ?? 0}
+          currentWeight={currentWeight}
+          goalWeight={activeGoalWeight}
+          suggestedGoalWeight={suggestedGoalWeight > 0 ? suggestedGoalWeight : null}
+          bmi={bmi > 0 ? bmi : null}
+          bmiClassification={bmiClassification}
+          tmb={bmr > 0 ? bmr : null}
+          tdee={tdee > 0 ? tdee : null}
+          dailyCalorieGoal={dailyCalorieGoal > 0 ? dailyCalorieGoal : null}
+          hasCustomGoal={Boolean(profile?.goalWeight && profile.goalWeight > 0)}
           onConfigureGoal={() => navigate('/configuracoes')}
         />
         <ExerciseCard

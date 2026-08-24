@@ -1,14 +1,25 @@
 import type { Timestamp } from 'firebase/firestore';
 
+export type Sex = 'male' | 'female';
+export type ActivityLevel =
+  | 'sedentary'
+  | 'lightly_active'
+  | 'moderately_active'
+  | 'very_active'
+  | 'extremely_active';
+
 export interface UserProfile {
   name: string;
-  height: number;
-  initialWeight: number;
-  goalWeight: number;
-  dailyCalorieGoal: number;
-  dailyWaterGoal: number;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  sex?: Sex;
+  birthDate?: Timestamp | null;
+  height?: number;
+  initialWeight?: number;
+  goalWeight?: number;
+  activityLevel?: ActivityLevel;
+  dailyCalorieGoal?: number;
+  dailyWaterGoal?: number;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }
 
 export interface WeightEntry {

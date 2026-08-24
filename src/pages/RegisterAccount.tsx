@@ -6,7 +6,6 @@ import { registerWithEmail } from '../services/firebase/auth';
 import { createUserProfile } from '../services/firebase/firestore';
 import { mapAuthError } from '../utils/authErrors';
 
-const DEFAULT_CALORIE_GOAL = 2000;
 const DEFAULT_WATER_GOAL_ML = 2000;
 
 export default function RegisterAccount() {
@@ -32,7 +31,8 @@ export default function RegisterAccount() {
         height: 0,
         initialWeight: 0,
         goalWeight: 0,
-        dailyCalorieGoal: DEFAULT_CALORIE_GOAL,
+        activityLevel: 'moderately_active',
+        dailyCalorieGoal: 0,
         dailyWaterGoal: DEFAULT_WATER_GOAL_ML,
       });
       navigate('/configuracoes', { replace: true, state: { onboarding: true } });

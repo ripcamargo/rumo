@@ -1,4 +1,5 @@
 import type { MealType, MeasurementType } from '../types';
+import type { ActivityLevel } from './calculations';
 
 const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
   cintura: 'Cintura',
@@ -30,4 +31,25 @@ export function defaultMealTypeForHour(hour: number): MealType {
   if (hour < 15) return 'almoco';
   if (hour < 18) return 'cafe_tarde';
   return 'jantar';
+}
+
+const ACTIVITY_LEVEL_LABELS: Record<ActivityLevel, string> = {
+  sedentary: 'Sedentário',
+  lightly_active: 'Levemente ativo',
+  moderately_active: 'Moderadamente ativo',
+  very_active: 'Muito ativo',
+  extremely_active: 'Extremamente ativo',
+};
+
+export function activityLevelLabel(level: string): string {
+  return ACTIVITY_LEVEL_LABELS[level as ActivityLevel] ?? '—';
+}
+
+const SEX_LABELS: Record<string, string> = {
+  male: 'Masculino',
+  female: 'Feminino',
+};
+
+export function sexLabel(sex: string): string {
+  return SEX_LABELS[sex] ?? '—';
 }
