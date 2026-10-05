@@ -20,7 +20,8 @@ export function useFirestoreCollection<T extends { id: string }>(
   constraints: QueryConstraint[],
   /** Chave primitiva estável representando os parâmetros dos `constraints` (ex.: `since?.getTime()`), já que os objetos QueryConstraint do Firestore não são comparáveis por valor. */
   depsKey: string | number,
-  orderField = 'recordedAt',
+  /** `null` dispensa a ordenação no servidor (evita índice composto ao combinar com filtros de igualdade). */
+  orderField: string | null = 'recordedAt',
 ): UseCollectionResult<T> {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +37,7 @@ export function useFirestoreCollection<T extends { id: string }>(
     const q = query(
       collection(db, 'users', userId, subcollection),
       ...constraints,
-      orderBy(orderField, 'desc'),
+      ...(orderField ? [orderBy(orderField, 'desc')] : []),
     );
     const unsubscribe = onSnapshot(
       q,

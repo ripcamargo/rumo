@@ -19,9 +19,32 @@
   margin: 0 0 var(--rumo-space-3);
 }
 
+.rumo-history-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+}
+
+.rumo-history-section-header .rumo-history-section-title {
+  margin-bottom: var(--rumo-space-3);
+}
+
 .rumo-history-exercise-date {
   color: var(--rumo-text-secondary);
   font-weight: var(--rumo-fw-regular);
+}
+
+.rumo-history-chart-trigger {
+  cursor: pointer;
+  border-radius: var(--rumo-radius-md);
+  transition: background var(--rumo-transition-fast);
+}
+
+.rumo-history-chart-trigger:hover,
+.rumo-history-chart-trigger:focus-visible {
+  background: rgba(75, 178, 145, 0.08);
+  outline: none;
 }
 
 @media (min-width: 1024px) {

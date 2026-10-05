@@ -107,3 +107,38 @@ export interface DailySummary {
 }
 
 export type HistoryRangeFilter = 7 | 30 | 90 | 'all';
+
+/**
+ * Conta de um mês específico (módulo Finanças). Valores em centavos para
+ * evitar erros de arredondamento de ponto flutuante.
+ * Contas fixas só viram documento quando são alteradas, pagas ou removidas
+ * naquele mês — até lá são exibidas a partir do modelo (`RecurringBill`).
+ */
+export interface Bill {
+  id: string;
+  name: string;
+  amountCents: number;
+  dueDate: Timestamp;
+  /** Mês de referência no formato `YYYY-MM`. */
+  month: string;
+  paid: boolean;
+  paidAt?: Timestamp;
+  recurringId?: string;
+  /** Ocorrência de conta fixa removida apenas deste mês. */
+  skipped?: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/** Modelo de conta fixa mensal (ou parcelada, quando `installments` existe). */
+export interface RecurringBill {
+  id: string;
+  name: string;
+  amountCents: number;
+  dueDay: number;
+  /** Primeiro mês em que a conta aparece, `YYYY-MM`. */
+  startMonth: string;
+  installments?: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}

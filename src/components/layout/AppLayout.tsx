@@ -1,17 +1,26 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Logo } from '../common/Logo';
 import { QuickRegister } from '../registration/QuickRegister';
 import { useQuickRegister } from '../../contexts/QuickRegisterContext';
 import './AppLayout.css';
 
-const NAV_ITEMS = [
+const HEALTH_NAV_ITEMS = [
   { to: '/', label: 'Hoje', icon: '🏠', end: true },
   { to: '/historico', label: 'Progresso', icon: '📊', end: false },
   { to: '/configuracoes', label: 'Ajustes', icon: '⚙️', end: false },
 ];
 
+const FINANCE_NAV_ITEMS = [
+  { to: '/financas', label: 'Contas', icon: '💸', end: true },
+  { to: '/financas/fixas', label: 'Fixas', icon: '🔁', end: false },
+];
+
 export function AppLayout() {
   const { open } = useQuickRegister();
+  const { pathname } = useLocation();
+  // O módulo é derivado da rota: tudo sob /financas pertence ao módulo Finanças.
+  const isFinance = pathname.startsWith('/financas');
+  const navItems = isFinance ? FINANCE_NAV_ITEMS : HEALTH_NAV_ITEMS;
 
   return (
     <div className="rumo-layout">
@@ -19,8 +28,22 @@ export function AppLayout() {
         <div className="rumo-header-inner">
           <Logo variant="mark" height={30} />
           <span className="rumo-header-title">Rumo</span>
+          <nav className="rumo-module-switch" aria-label="Módulo">
+            <NavLink
+              to="/"
+              className={`rumo-module-switch-item ${isFinance ? '' : 'rumo-module-switch-item--active'}`}
+            >
+              🌱 Saúde
+            </NavLink>
+            <NavLink
+              to="/financas"
+              className={`rumo-module-switch-item ${isFinance ? 'rumo-module-switch-item--active' : ''}`}
+            >
+              💰 Finanças
+            </NavLink>
+          </nav>
           <nav className="rumo-header-nav">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -33,13 +56,15 @@ export function AppLayout() {
               </NavLink>
             ))}
           </nav>
-          <button
-            type="button"
-            className="rumo-header-cta"
-            onClick={() => open()}
-          >
-            + Registrar
-          </button>
+          {!isFinance && (
+            <button
+              type="button"
+              className="rumo-header-cta"
+              onClick={() => open()}
+            >
+              + Registrar
+            </button>
+          )}
         </div>
       </header>
 
@@ -49,17 +74,20 @@ export function AppLayout() {
         </div>
       </main>
 
-      <button
-        type="button"
-        className="rumo-fab"
-        aria-label="Registrar"
-        onClick={() => open()}
-      >
-        +
-      </button>
+      {/* No módulo Finanças cada página renderiza o próprio botão de adicionar. */}
+      {!isFinance && (
+        <button
+          type="button"
+          className="rumo-fab"
+          aria-label="Registrar"
+          onClick={() => open()}
+        >
+          +
+        </button>
+      )}
 
       <nav className="rumo-bottom-nav rumo-safe-bottom">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

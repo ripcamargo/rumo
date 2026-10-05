@@ -9,6 +9,7 @@ import {
   calculateCalorieGoal,
   calculateGoalProgress,
   estimateWeeksToGoal,
+  estimateGoalDate,
   calculateTrend,
 } from './calculations';
 
@@ -78,5 +79,25 @@ describe('progresso e previsão', () => {
     ]);
     expect(result.hasTrend).toBe(false);
     expect(result.kgPerWeek).toBeNull();
+  });
+
+  it('estima uma data provável para a meta mantendo o ritmo de perda atual', () => {
+    const from = new Date('2026-08-24T00:00:00');
+    const result = estimateGoalDate(95, 76, -0.7, from);
+    expect(result).not.toBeNull();
+    const diffDays = (result!.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
+    expect(diffDays).toBeCloseTo(190, 0);
+  });
+
+  it('não estima data quando a tendência é de ganho de peso', () => {
+    expect(estimateGoalDate(95, 76, 0.3, new Date('2026-08-24T00:00:00'))).toBeNull();
+  });
+
+  it('não estima data quando a meta já foi atingida', () => {
+    expect(estimateGoalDate(75, 76, -0.5, new Date('2026-08-24T00:00:00'))).toBeNull();
+  });
+
+  it('não estima data sem uma tendência conhecida', () => {
+    expect(estimateGoalDate(95, 76, null, new Date('2026-08-24T00:00:00'))).toBeNull();
   });
 });

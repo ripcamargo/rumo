@@ -16,6 +16,8 @@ import Exercises from './pages/Exercises';
 import Foods from './pages/Foods';
 import FoodCategories from './pages/FoodCategories';
 import Settings from './pages/Settings';
+import Finance from './pages/Finance';
+import FinanceRecurring from './pages/FinanceRecurring';
 
 export default function App() {
   return (
@@ -64,6 +66,8 @@ export default function App() {
                   <Route path="/alimentos" element={<Foods />} />
                   <Route path="/categorias-alimentos" element={<FoodCategories />} />
                   <Route path="/configuracoes" element={<Settings />} />
+                  <Route path="/financas" element={<Finance />} />
+                  <Route path="/financas/fixas" element={<FinanceRecurring />} />
                 </Route>
               </Routes>
             </BrowserRouter>

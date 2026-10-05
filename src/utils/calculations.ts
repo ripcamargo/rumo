@@ -210,6 +210,25 @@ export function calculateTrend(points: WeightPoint[]): TrendResult {
   return { hasTrend: true, kgPerWeek };
 }
 
+const MIN_WEEKLY_LOSS_FOR_ESTIMATE = 0.05;
+
+/** Projeta a data provável de atingir a meta, mantendo o ritmo de perda de peso observado. */
+export function estimateGoalDate(
+  currentWeight: number,
+  goalWeight: number,
+  kgPerWeek: number | null,
+  from: Date,
+): Date | null {
+  if (!isValidNumber(currentWeight) || !isValidNumber(goalWeight)) return null;
+  if (currentWeight <= goalWeight) return null;
+  if (kgPerWeek === null || kgPerWeek >= -MIN_WEEKLY_LOSS_FOR_ESTIMATE) return null;
+
+  const weeks = estimateWeeksToGoal(currentWeight, goalWeight, kgPerWeek);
+  if (weeks === null) return null;
+
+  return new Date(from.getTime() + weeks * 7 * MS_PER_DAY);
+}
+
 export function calculateProportionalCalories(
   baseCalories: number,
   baseAmount: number,

@@ -28,6 +28,33 @@
   color: var(--rumo-navy);
 }
 
+.rumo-module-switch {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  padding: 3px;
+  border-radius: var(--rumo-radius-pill);
+  background: var(--rumo-bg);
+  border: 1px solid var(--rumo-border);
+}
+
+.rumo-module-switch-item {
+  padding: var(--rumo-space-1) var(--rumo-space-3);
+  border-radius: var(--rumo-radius-pill);
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-medium);
+  color: var(--rumo-text-secondary);
+  white-space: nowrap;
+  transition:
+    background var(--rumo-transition-fast),
+    color var(--rumo-transition-fast);
+}
+
+.rumo-module-switch-item--active {
+  background: var(--rumo-navy);
+  color: var(--rumo-white);
+}
+
 .rumo-header-nav {
   display: none;
   gap: var(--rumo-space-5);
@@ -138,6 +165,10 @@
 @media (min-width: 768px) {
   .rumo-header-nav {
     display: flex;
+  }
+
+  .rumo-module-switch {
+    margin-left: var(--rumo-space-4);
   }
 
   .rumo-header-cta {

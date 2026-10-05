@@ -27,6 +27,7 @@ import type {
   WaterEntry,
   WeightEntry,
 } from '../../types';
+import { toMonthKey, type MonthBill } from '../../utils/finance';
 
 /** Firestore rejeita campos com valor `undefined` — remove antes de gravar. */
 function stripUndefined<T extends object>(data: T): Partial<T> {
@@ -304,4 +305,112 @@ export async function getFoodCategories(userId: string): Promise<FoodCategory[]>
   const q = query(userSubcollection(userId, 'foodCategories'), orderBy('name', 'asc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<FoodCategory, 'id'>) }));
+}
+
+// Finanças — contas do mês
+export async function addBill(userId: string, data: { name: string; amountCents: number; dueDate: Date }) {
+  await addDoc(userSubcollection(userId, 'bills'), {
+    name: data.name,
+    amountCents: data.amountCents,
+    dueDate: Timestamp.fromDate(data.dueDate),
+    month: toMonthKey(data.dueDate),
+    paid: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Grava alterações de uma conta do mês. Ocorrências de contas fixas ainda não
+ * gravadas são criadas com id determinístico (`rec_{modelo}_{mês}`), o que
+ * impede duplicatas mesmo com cliques repetidos ou vários dispositivos.
+ */
+export async function saveMonthBill(
+  userId: string,
+  bill: MonthBill,
+  changes: Partial<{ name: string; amountCents: number; dueDate: Date; paid: boolean }>,
+) {
+  const ref = doc(db, 'users', userId, 'bills', bill.id);
+  const { dueDate, paid, ...rest } = changes;
+  // Contas fixas ficam presas ao mês de referência; contas avulsas acompanham o vencimento.
+  const month = dueDate && !bill.recurringId ? toMonthKey(dueDate) : bill.month;
+
+  if (bill.persisted) {
+    await updateDoc(ref, {
+      ...stripUndefined(rest),
+      ...(dueDate ? { dueDate: Timestamp.fromDate(dueDate), month } : {}),
+      ...(paid !== undefined ? { paid, paidAt: paid ? serverTimestamp() : deleteField() } : {}),
+      updatedAt: serverTimestamp(),
+    });
+    return;
+  }
+
+  const isPaid = paid ?? bill.paid;
+  await setDoc(ref, {
+    name: rest.name ?? bill.name,
+    amountCents: rest.amountCents ?? bill.amountCents,
+    dueDate: Timestamp.fromDate(dueDate ?? bill.dueDate),
+    month,
+    paid: isPaid,
+    ...(isPaid ? { paidAt: serverTimestamp() } : {}),
+    ...(bill.recurringId ? { recurringId: bill.recurringId } : {}),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Remove a conta do mês. Para contas fixas grava um marcador `skipped`, para que ela não reapareça. */
+export async function removeMonthBill(userId: string, bill: MonthBill) {
+  const ref = doc(db, 'users', userId, 'bills', bill.id);
+  if (!bill.recurringId) {
+    await deleteDoc(ref);
+    return;
+  }
+  await setDoc(ref, {
+    name: bill.name,
+    amountCents: bill.amountCents,
+    dueDate: Timestamp.fromDate(bill.dueDate),
+    month: bill.month,
+    paid: false,
+    recurringId: bill.recurringId,
+    skipped: true,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// Finanças — contas fixas
+export async function addRecurringBill(
+  userId: string,
+  data: { name: string; amountCents: number; dueDay: number; startMonth: string; installments?: number },
+) {
+  await addDoc(userSubcollection(userId, 'recurringBills'), {
+    ...stripUndefined(data),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateRecurringBill(
+  userId: string,
+  recurringId: string,
+  data: Partial<{
+    name: string;
+    amountCents: number;
+    dueDay: number;
+    startMonth: string;
+    /** `null` torna a conta fixa sem data de término; `undefined` a deixa inalterada. */
+    installments: number | null;
+  }>,
+) {
+  const { installments, ...rest } = data;
+  await updateDoc(doc(db, 'users', userId, 'recurringBills', recurringId), {
+    ...stripUndefined(rest),
+    ...(installments !== undefined ? { installments: installments ?? deleteField() } : {}),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteRecurringBill(userId: string, recurringId: string) {
+  await deleteDoc(doc(db, 'users', userId, 'recurringBills', recurringId));
 }

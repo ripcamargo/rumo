@@ -81,6 +81,15 @@
   color: var(--rumo-warning);
 }
 
+.rumo-progress-goal-date {
+  margin: 0;
+  padding: var(--rumo-space-2) var(--rumo-space-3);
+  border-radius: var(--rumo-radius-md);
+  background: rgba(75, 178, 145, 0.12);
+  color: var(--rumo-navy);
+  font-size: var(--rumo-fs-sm);
+}
+
 .rumo-water-quick-row {
   display: flex;
   gap: var(--rumo-space-2);

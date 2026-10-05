@@ -1,0 +1,279 @@
+.rumo-finance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-finance-desktop-only {
+  display: none;
+}
+
+.rumo-finance-subtitle {
+  color: var(--rumo-text-secondary);
+  margin: 0 0 var(--rumo-space-3);
+}
+
+/* Navegação entre meses */
+.rumo-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-month-nav-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--rumo-border);
+  background: var(--rumo-surface);
+  color: var(--rumo-navy);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rumo-month-nav-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--rumo-fs-lg);
+  font-weight: var(--rumo-fw-semibold);
+  color: var(--rumo-navy);
+}
+
+.rumo-month-nav-label .rumo-form-link {
+  align-self: center;
+  font-size: var(--rumo-fs-xs);
+}
+
+/* Resumo do mês */
+.rumo-finance-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-4);
+  background: var(--rumo-navy);
+  border-color: var(--rumo-navy);
+  color: var(--rumo-white);
+}
+
+.rumo-finance-summary-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rumo-finance-summary-label {
+  font-size: var(--rumo-fs-sm);
+  opacity: 0.8;
+}
+
+.rumo-finance-summary-value {
+  font-size: var(--rumo-fs-2xl);
+  font-weight: var(--rumo-fw-bold);
+  line-height: 1.1;
+}
+
+.rumo-finance-summary-alert {
+  margin-top: var(--rumo-space-1);
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-medium);
+  color: #ffb4a3;
+}
+
+.rumo-finance-progress {
+  height: 8px;
+  border-radius: var(--rumo-radius-pill);
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.rumo-finance-progress-bar {
+  height: 100%;
+  background: var(--rumo-mint);
+  border-radius: var(--rumo-radius-pill);
+  transition: width var(--rumo-transition-base);
+}
+
+.rumo-finance-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--rumo-space-2);
+  font-size: var(--rumo-fs-sm);
+}
+
+.rumo-finance-summary-row strong {
+  margin-left: var(--rumo-space-1);
+}
+
+.rumo-finance-summary-count {
+  font-size: var(--rumo-fs-xs);
+  opacity: 0.7;
+}
+
+/* Lista de contas */
+.rumo-bill-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rumo-bill {
+  display: flex;
+  align-items: center;
+  gap: var(--rumo-space-3);
+  padding: var(--rumo-space-3) var(--rumo-space-4);
+  border-bottom: 1px solid var(--rumo-border);
+}
+
+.rumo-bill:last-child {
+  border-bottom: none;
+}
+
+.rumo-bill-check {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--rumo-gray-light);
+  background: var(--rumo-surface);
+  color: var(--rumo-white);
+  font-size: 1rem;
+  font-weight: var(--rumo-fw-bold);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--rumo-transition-fast),
+    border-color var(--rumo-transition-fast),
+    transform var(--rumo-transition-fast);
+}
+
+.rumo-bill-check:hover {
+  border-color: var(--rumo-mint);
+}
+
+.rumo-bill-check:active {
+  transform: scale(0.9);
+}
+
+.rumo-bill-check--on {
+  background: var(--rumo-mint);
+  border-color: var(--rumo-mint);
+}
+
+.rumo-bill-check:disabled {
+  opacity: 0.6;
+}
+
+.rumo-bill-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rumo-bill-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+}
+
+.rumo-bill-name {
+  display: flex;
+  align-items: center;
+  gap: var(--rumo-space-2);
+  min-width: 0;
+  font-weight: var(--rumo-fw-medium);
+  color: var(--rumo-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.rumo-bill-tag {
+  flex-shrink: 0;
+  padding: 0 var(--rumo-space-2);
+  border-radius: var(--rumo-radius-pill);
+  background: var(--rumo-bg);
+  border: 1px solid var(--rumo-border);
+  font-size: var(--rumo-fs-xs);
+  font-weight: var(--rumo-fw-medium);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-bill-amount {
+  flex-shrink: 0;
+  font-weight: var(--rumo-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--rumo-navy);
+}
+
+.rumo-bill-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rumo-space-2);
+  font-size: var(--rumo-fs-sm);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-bill-status {
+  font-size: var(--rumo-fs-xs);
+  font-weight: var(--rumo-fw-semibold);
+  padding: 1px var(--rumo-space-2);
+  border-radius: var(--rumo-radius-pill);
+}
+
+.rumo-bill-status--overdue {
+  background: rgba(217, 99, 76, 0.12);
+  color: var(--rumo-danger);
+}
+
+.rumo-bill-status--today,
+.rumo-bill-status--soon {
+  background: rgba(224, 166, 58, 0.15);
+  color: #a8741a;
+}
+
+.rumo-bill--paid .rumo-bill-name,
+.rumo-bill--paid .rumo-bill-amount,
+.rumo-bill--paid .rumo-bill-meta {
+  color: var(--rumo-gray-light);
+}
+
+.rumo-bill--paid .rumo-bill-name,
+.rumo-bill--paid .rumo-bill-amount {
+  text-decoration: line-through;
+}
+
+/* Formulários */
+.rumo-form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--rumo-space-3);
+}
+
+.rumo-form-hint {
+  margin: 0;
+  font-size: var(--rumo-fs-sm);
+  color: var(--rumo-text-secondary);
+}
+
+@media (min-width: 768px) {
+  .rumo-finance-desktop-only {
+    display: inline-block;
+  }
+}

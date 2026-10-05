@@ -36,6 +36,7 @@ import {
   calculateTdee,
   calculateTrend,
   classifyBmi,
+  estimateGoalDate,
   findClosestPoint,
 } from '../utils/calculations';
 import { mealTypeLabel } from '../utils/labels';
@@ -121,6 +122,9 @@ export default function Dashboard() {
   const bmiClassification = bmi > 0 ? classifyBmi(bmi) : null;
   const suggestedGoalWeight = heightCm ? calculateReferenceWeight(heightCm) : 0;
   const activeGoalWeight = profile?.goalWeight && profile.goalWeight > 0 ? profile.goalWeight : suggestedGoalWeight;
+  const estimatedGoalDate = currentWeight
+    ? estimateGoalDate(currentWeight, activeGoalWeight, trend.kgPerWeek, today)
+    : null;
   const activityLevel: ActivityLevel = profile?.activityLevel ?? 'moderately_active';
   const bmr = currentWeight && heightCm && age && profile?.sex
     ? calculateMifflinStJeor({ sex: profile.sex, weightKg: currentWeight, heightCm, ageYears: age })
@@ -172,6 +176,8 @@ export default function Dashboard() {
           tdee={tdee > 0 ? tdee : null}
           dailyCalorieGoal={dailyCalorieGoal > 0 ? dailyCalorieGoal : null}
           hasCustomGoal={Boolean(profile?.goalWeight && profile.goalWeight > 0)}
+          estimatedGoalDate={estimatedGoalDate}
+          hasWeightTrend={trend.hasTrend}
           onConfigureGoal={() => navigate('/configuracoes')}
         />
         <ExerciseCard

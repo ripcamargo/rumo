@@ -14,6 +14,8 @@ interface ProgressCardProps {
   tdee?: number | null;
   dailyCalorieGoal?: number | null;
   hasCustomGoal?: boolean;
+  estimatedGoalDate?: Date | null;
+  hasWeightTrend?: boolean;
   onConfigureGoal: () => void;
 }
 
@@ -28,6 +30,8 @@ export function ProgressCard({
   tdee,
   dailyCalorieGoal,
   hasCustomGoal,
+  estimatedGoalDate,
+  hasWeightTrend,
   onConfigureGoal,
 }: ProgressCardProps) {
   if (!initialWeight || !goalWeight) {
@@ -86,6 +90,24 @@ export function ProgressCard({
           ? 'Meta atingida! 🎉'
           : `${Math.round(progress * 100)}% do caminho até a sua meta.`}
       </p>
+      {!reachedGoal && estimatedGoalDate && (
+        <p className="rumo-progress-goal-date">
+          📅 No ritmo atual, você deve atingir a meta em{' '}
+          <strong>
+            {estimatedGoalDate.toLocaleDateString('pt-BR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </strong>
+          .
+        </p>
+      )}
+      {!reachedGoal && !estimatedGoalDate && hasWeightTrend && (
+        <p className="rumo-metric-card-note" style={{ opacity: 0.8 }}>
+          Seu peso não está em queda nos últimos dias — continue registrando para estimar uma data.
+        </p>
+      )}
       {hasSummaryData ? (
         <p className="rumo-metric-card-note" style={{ opacity: 0.8 }}>
           {suggestedGoalWeight !== undefined && suggestedGoalWeight !== null && suggestedGoalWeight > 0 && `Peso de referência: ${suggestedGoalWeight.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} kg · `}
