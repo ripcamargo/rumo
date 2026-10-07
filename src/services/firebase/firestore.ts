@@ -18,7 +18,9 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import type {
+  BankDebt,
   BodyMeasurement,
+  IncomeItemKind,
   CalorieEntry,
   Exercise,
   Food,
@@ -496,4 +498,78 @@ export async function setTransactionCategory(
 
 export async function deleteTransaction(userId: string, transactionId: string) {
   await deleteDoc(doc(db, 'users', userId, 'transactions', transactionId));
+}
+
+// Finanças — bancos e dívidas
+export async function addBank(userId: string, data: { name: string; balanceCents: number }) {
+  await addDoc(userSubcollection(userId, 'banks'), {
+    ...data,
+    debts: [],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateBank(userId: string, bankId: string, data: Partial<{ name: string; balanceCents: number }>) {
+  await updateDoc(doc(db, 'users', userId, 'banks', bankId), { ...stripUndefined(data), updatedAt: serverTimestamp() });
+}
+
+/** As dívidas ficam como lista dentro do banco; a lista inteira é regravada a cada alteração. */
+export async function saveBankDebts(userId: string, bankId: string, debts: BankDebt[]) {
+  await updateDoc(doc(db, 'users', userId, 'banks', bankId), {
+    debts: debts.map((d) => stripUndefined(d)),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteBank(userId: string, bankId: string) {
+  await deleteDoc(doc(db, 'users', userId, 'banks', bankId));
+}
+
+// Finanças — renda fixa mensal
+export async function addIncomeItem(
+  userId: string,
+  data: { kind: IncomeItemKind; name: string; amountCents: number; inCash?: boolean },
+) {
+  await addDoc(userSubcollection(userId, 'incomeItems'), { ...stripUndefined(data), createdAt: serverTimestamp() });
+}
+
+export async function updateIncomeItem(
+  userId: string,
+  itemId: string,
+  data: Partial<{ name: string; amountCents: number; inCash: boolean }>,
+) {
+  await updateDoc(doc(db, 'users', userId, 'incomeItems', itemId), stripUndefined(data));
+}
+
+export async function deleteIncomeItem(userId: string, itemId: string) {
+  await deleteDoc(doc(db, 'users', userId, 'incomeItems', itemId));
+}
+
+// Finanças — receitas avulsas
+export async function addExtraIncome(userId: string, data: { description: string; amountCents: number; date: Date }) {
+  await addDoc(userSubcollection(userId, 'extraIncomes'), {
+    description: data.description,
+    amountCents: data.amountCents,
+    date: Timestamp.fromDate(data.date),
+    month: toMonthKey(data.date),
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function updateExtraIncome(
+  userId: string,
+  incomeId: string,
+  data: { description: string; amountCents: number; date: Date },
+) {
+  await updateDoc(doc(db, 'users', userId, 'extraIncomes', incomeId), {
+    description: data.description,
+    amountCents: data.amountCents,
+    date: Timestamp.fromDate(data.date),
+    month: toMonthKey(data.date),
+  });
+}
+
+export async function deleteExtraIncome(userId: string, incomeId: string) {
+  await deleteDoc(doc(db, 'users', userId, 'extraIncomes', incomeId));
 }

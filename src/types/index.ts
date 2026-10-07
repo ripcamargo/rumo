@@ -167,3 +167,57 @@ export interface CategoryRule {
   key: string;
   categoryId: string;
 }
+
+export const DEBT_KINDS = ['cartao', 'cheque_especial', 'emprestimo', 'financiamento', 'outro'] as const;
+export type DebtKind = (typeof DEBT_KINDS)[number];
+
+/** Dívida com um banco. Fica dentro do documento do banco (poucos itens por banco). */
+export interface BankDebt {
+  id: string;
+  kind: DebtKind;
+  description?: string;
+  /** Quanto falta pagar hoje (saldo devedor / valor para quitação). */
+  balanceCents: number;
+  monthlyPaymentCents?: number;
+  installmentsLeft?: number;
+  /** Juros ao mês, em % (ex.: 12.5). */
+  interestRateMonthly?: number;
+  /**
+   * `true` quando a parcela já aparece em Contas a pagar ou é descontada do
+   * salário — evita contá-la duas vezes na previsão do mês.
+   */
+  paymentTracked?: boolean;
+}
+
+export interface Bank {
+  id: string;
+  name: string;
+  /** Dinheiro guardado no banco (conta + investimentos). */
+  balanceCents: number;
+  debts: BankDebt[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export type IncomeItemKind = 'salary' | 'benefit' | 'deduction';
+
+/** Item fixo da renda mensal: salário bruto, benefício ou desconto em folha. */
+export interface IncomeItem {
+  id: string;
+  kind: IncomeItemKind;
+  name: string;
+  amountCents: number;
+  /** Benefícios: `false` para cartões como VR/VA, que não viram dinheiro em conta. */
+  inCash?: boolean;
+  createdAt: Timestamp;
+}
+
+/** Receita avulsa (venda, freela, reembolso...). */
+export interface ExtraIncome {
+  id: string;
+  description: string;
+  amountCents: number;
+  date: Timestamp;
+  month: string;
+  createdAt: Timestamp;
+}

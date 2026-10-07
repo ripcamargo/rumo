@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { where } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -23,7 +24,7 @@ import { formatShortDate } from '../utils/dates';
 import type { Bill, RecurringBill } from '../types';
 import '../components/finance/finance.css';
 
-export default function Finance() {
+export default function FinanceBills() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [month, setMonth] = useState(() => toMonthKey(new Date()));
@@ -179,6 +180,10 @@ export default function Finance() {
           )}
         </>
       )}
+
+      <Link to="/financas/fixas" className="rumo-form-link rumo-bills-recurring-link">
+        🔁 Gerenciar contas fixas e parceladas
+      </Link>
 
       <button type="button" className="rumo-fab" aria-label="Nova conta" onClick={openNew}>
         +

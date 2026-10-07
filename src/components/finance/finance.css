@@ -422,6 +422,390 @@
   accent-color: var(--rumo-mint-dark);
 }
 
+/* Links auxiliares */
+.rumo-back-link {
+  display: inline-block;
+  margin-bottom: var(--rumo-space-2);
+}
+
+.rumo-bills-recurring-link {
+  display: inline-block;
+  margin-top: var(--rumo-space-4);
+}
+
+.rumo-finance-summary-value--negative {
+  color: #ffb4a3;
+}
+
+/* Renda */
+.rumo-income-breakdown,
+.rumo-flow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--rumo-space-1) var(--rumo-space-3);
+  font-size: var(--rumo-fs-sm);
+}
+
+.rumo-income-breakdown span,
+.rumo-flow span {
+  opacity: 0.85;
+}
+
+.rumo-income-breakdown strong,
+.rumo-flow strong {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rumo-income-section {
+  margin-bottom: var(--rumo-space-5);
+}
+
+/* Bancos */
+.rumo-bank-list {
+  display: grid;
+  gap: var(--rumo-space-4);
+}
+
+.rumo-bank-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-3);
+}
+
+.rumo-bank-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rumo-space-3);
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rumo-bank-name {
+  font-size: var(--rumo-fs-lg);
+  font-weight: var(--rumo-fw-semibold);
+  color: var(--rumo-navy);
+}
+
+.rumo-bank-figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--rumo-space-3);
+}
+
+.rumo-bank-figure-label {
+  display: block;
+  font-size: var(--rumo-fs-xs);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-bank-figure-value {
+  display: block;
+  font-size: var(--rumo-fs-lg);
+  font-weight: var(--rumo-fw-bold);
+  color: var(--rumo-navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.rumo-bank-figure-value--saved {
+  color: var(--rumo-mint-dark);
+}
+
+.rumo-bank-figure-value--debt {
+  color: var(--rumo-danger);
+}
+
+.rumo-debt-list,
+.rumo-plan-order,
+.rumo-mini-list,
+.rumo-insights,
+.rumo-split,
+.rumo-setup-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rumo-debt-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--rumo-space-2) var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-2);
+  border: 1px solid var(--rumo-border);
+  border-radius: var(--rumo-radius-md);
+  background: var(--rumo-bg);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rumo-debt-item:hover {
+  border-color: var(--rumo-mint);
+}
+
+.rumo-bank-add-debt {
+  align-self: flex-start;
+}
+
+/* Painel */
+.rumo-dashboard-card {
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--rumo-space-2);
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--rumo-space-3);
+  border-radius: var(--rumo-radius-lg);
+  border: 1px solid var(--rumo-border);
+  background: var(--rumo-surface);
+  box-shadow: var(--rumo-shadow-sm);
+}
+
+.rumo-stat-label {
+  font-size: var(--rumo-fs-xs);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-stat-value {
+  font-size: var(--rumo-fs-md);
+  font-weight: var(--rumo-fw-bold);
+  color: var(--rumo-navy);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.rumo-stat-value--negative {
+  color: var(--rumo-danger);
+}
+
+.rumo-stat-hint {
+  font-size: var(--rumo-fs-xs);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-setup-card {
+  margin-bottom: var(--rumo-space-4);
+  border-color: var(--rumo-mint);
+}
+
+.rumo-setup-list li {
+  display: flex;
+  gap: var(--rumo-space-2);
+  padding: var(--rumo-space-1) 0;
+  font-size: var(--rumo-fs-sm);
+}
+
+.rumo-setup-list a {
+  color: var(--rumo-mint-dark);
+  font-weight: var(--rumo-fw-medium);
+}
+
+.rumo-setup-step--done {
+  color: var(--rumo-text-secondary);
+  text-decoration: line-through;
+}
+
+.rumo-insights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rumo-space-2);
+}
+
+.rumo-insight {
+  display: flex;
+  gap: var(--rumo-space-2);
+  padding: var(--rumo-space-2) var(--rumo-space-3);
+  border-radius: var(--rumo-radius-md);
+  border-left: 3px solid var(--rumo-border);
+  background: var(--rumo-bg);
+  font-size: var(--rumo-fs-sm);
+  line-height: 1.4;
+}
+
+.rumo-insight--alert {
+  border-left-color: var(--rumo-danger);
+  background: rgba(217, 99, 76, 0.08);
+}
+
+.rumo-insight--warn {
+  border-left-color: var(--rumo-warning);
+  background: rgba(224, 166, 58, 0.1);
+}
+
+.rumo-insight--good {
+  border-left-color: var(--rumo-mint);
+  background: rgba(75, 178, 145, 0.1);
+}
+
+.rumo-plan-rows {
+  display: grid;
+  gap: var(--rumo-space-3);
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-plan-rows > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rumo-plan-label {
+  font-size: var(--rumo-fs-sm);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-plan-hint {
+  margin: 0;
+  font-size: var(--rumo-fs-sm);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-plan-target {
+  padding: var(--rumo-space-3);
+  border-radius: var(--rumo-radius-md);
+  background: var(--rumo-bg);
+  margin-bottom: var(--rumo-space-4);
+}
+
+.rumo-plan-answer {
+  margin: var(--rumo-space-3) 0 0;
+  color: var(--rumo-text-primary);
+}
+
+.rumo-plan-verdict {
+  margin: var(--rumo-space-2) 0 0;
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-medium);
+}
+
+.rumo-plan-verdict--ok {
+  color: var(--rumo-mint-dark);
+}
+
+.rumo-plan-verdict--short {
+  color: #a8741a;
+}
+
+.rumo-plan-subtitle {
+  font-size: var(--rumo-fs-sm);
+  font-weight: var(--rumo-fw-semibold);
+  color: var(--rumo-text-secondary);
+  margin: 0 0 var(--rumo-space-2);
+}
+
+.rumo-plan-order {
+  counter-reset: plan;
+}
+
+.rumo-plan-order li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--rumo-space-2) 0 var(--rumo-space-2) var(--rumo-space-6);
+  border-bottom: 1px solid var(--rumo-border);
+  counter-increment: plan;
+}
+
+.rumo-plan-order li:last-child {
+  border-bottom: none;
+}
+
+.rumo-plan-order li::before {
+  content: counter(plan);
+  position: absolute;
+  left: 0;
+  top: var(--rumo-space-2);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--rumo-navy);
+  color: var(--rumo-white);
+  font-size: var(--rumo-fs-xs);
+  font-weight: var(--rumo-fw-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rumo-plan-order small {
+  font-weight: var(--rumo-fw-regular);
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-split li,
+.rumo-mini-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--rumo-space-3);
+  padding: var(--rumo-space-2) 0;
+  border-bottom: 1px solid var(--rumo-border);
+  font-size: var(--rumo-fs-sm);
+}
+
+.rumo-split li:last-child,
+.rumo-mini-list li:last-child {
+  border-bottom: none;
+}
+
+.rumo-split strong,
+.rumo-mini-list strong {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rumo-mini-list small {
+  color: var(--rumo-text-secondary);
+}
+
+.rumo-mini-list .rumo-bill-status {
+  margin-left: var(--rumo-space-1);
+}
+
+.rumo-finance-progress--light {
+  background: var(--rumo-border);
+  margin-bottom: var(--rumo-space-2);
+}
+
+.rumo-dashboard-columns {
+  display: grid;
+  gap: 0 var(--rumo-space-4);
+}
+
+@media (max-width: 420px) {
+  .rumo-stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .rumo-stat:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 768px) {
+  .rumo-bank-list,
+  .rumo-dashboard-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 768px) {
   .rumo-finance-desktop-only {
     display: inline-block;

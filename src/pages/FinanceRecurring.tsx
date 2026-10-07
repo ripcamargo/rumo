@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useFirestoreCollection } from '../hooks/useFirestoreCollection';
 import { Card } from '../components/common/Card';
@@ -62,6 +63,9 @@ export default function FinanceRecurring() {
 
   return (
     <div>
+      <Link to="/financas/contas" className="rumo-form-link rumo-back-link">
+        ← Contas do mês
+      </Link>
       <header className="rumo-finance-header">
         <h1 className="rumo-page-title">Contas fixas</h1>
         <Button variant="success" className="rumo-finance-desktop-only" onClick={openNew}>

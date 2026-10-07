@@ -16,7 +16,10 @@ import Exercises from './pages/Exercises';
 import Foods from './pages/Foods';
 import FoodCategories from './pages/FoodCategories';
 import Settings from './pages/Settings';
-import Finance from './pages/Finance';
+import FinanceDashboard from './pages/FinanceDashboard';
+import FinanceBills from './pages/FinanceBills';
+import FinanceBanks from './pages/FinanceBanks';
+import FinanceIncome from './pages/FinanceIncome';
 import FinanceRecurring from './pages/FinanceRecurring';
 import FinanceSpending from './pages/FinanceSpending';
 
@@ -67,7 +70,10 @@ export default function App() {
                   <Route path="/alimentos" element={<Foods />} />
                   <Route path="/categorias-alimentos" element={<FoodCategories />} />
                   <Route path="/configuracoes" element={<Settings />} />
-                  <Route path="/financas" element={<Finance />} />
+                  <Route path="/financas" element={<FinanceDashboard />} />
+                  <Route path="/financas/contas" element={<FinanceBills />} />
+                  <Route path="/financas/bancos" element={<FinanceBanks />} />
+                  <Route path="/financas/renda" element={<FinanceIncome />} />
                   <Route path="/financas/gastos" element={<FinanceSpending />} />
                   <Route path="/financas/fixas" element={<FinanceRecurring />} />
                 </Route>

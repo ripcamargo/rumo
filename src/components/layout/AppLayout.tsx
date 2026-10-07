@@ -11,9 +11,11 @@ const HEALTH_NAV_ITEMS = [
 ];
 
 const FINANCE_NAV_ITEMS = [
-  { to: '/financas', label: 'Contas', icon: '💸', end: true },
+  { to: '/financas', label: 'Painel', icon: '🧭', end: true },
+  { to: '/financas/contas', label: 'Contas', icon: '💸', end: false },
   { to: '/financas/gastos', label: 'Gastos', icon: '📊', end: false },
-  { to: '/financas/fixas', label: 'Fixas', icon: '🔁', end: false },
+  { to: '/financas/bancos', label: 'Bancos', icon: '🏦', end: false },
+  { to: '/financas/renda', label: 'Renda', icon: '💼', end: false },
 ];
 
 export function AppLayout() {

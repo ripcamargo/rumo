@@ -97,11 +97,7 @@ export function centsToInput(cents: number): string {
   return (cents / 100).toFixed(2).replace('.', ',');
 }
 
-/**
- * Converte o texto digitado em centavos. Aceita "169", "169,9", "1.234,56",
- * "R$ 98,00" e também ponto como separador decimal ("180.90").
- */
-export function parseCurrencyInput(input: string): number | null {
+function parseAmountText(input: string): number | null {
   let value = input.replace(/[R$\s]/g, '');
   if (!value) return null;
   if (value.includes(',')) {
@@ -110,8 +106,21 @@ export function parseCurrencyInput(input: string): number | null {
     value = value.replace(/\./g, '');
   }
   if (!/^\d+(\.\d{1,2})?$/.test(value)) return null;
-  const cents = Math.round(Number(value) * 100);
-  return cents > 0 ? cents : null;
+  return Math.round(Number(value) * 100);
+}
+
+/**
+ * Converte o texto digitado em centavos. Aceita "169", "169,9", "1.234,56",
+ * "R$ 98,00" e também ponto como separador decimal ("180.90").
+ */
+export function parseCurrencyInput(input: string): number | null {
+  const cents = parseAmountText(input);
+  return cents !== null && cents > 0 ? cents : null;
+}
+
+/** Como `parseCurrencyInput`, mas campo vazio ou zero valem 0 (ex.: saldo de um banco). */
+export function parseOptionalCurrencyInput(input: string): number | null {
+  return input.trim() ? parseAmountText(input) : 0;
 }
 
 // Contas fixas
