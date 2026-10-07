@@ -12,6 +12,7 @@ const HEALTH_NAV_ITEMS = [
 
 const FINANCE_NAV_ITEMS = [
   { to: '/financas', label: 'Contas', icon: '💸', end: true },
+  { to: '/financas/gastos', label: 'Gastos', icon: '📊', end: false },
   { to: '/financas/fixas', label: 'Fixas', icon: '🔁', end: false },
 ];
 

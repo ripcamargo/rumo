@@ -10,11 +10,10 @@ import { Loading } from '../components/common/Loading';
 import { EmptyState } from '../components/common/EmptyState';
 import { Modal } from '../components/common/Modal';
 import { BillForm } from '../components/finance/BillForm';
+import { MonthNav } from '../components/finance/MonthNav';
 import {
-  addMonths,
   buildMonthBills,
   formatCurrency,
-  formatMonthLabel,
   getDueStatus,
   summarizeBills,
   toMonthKey,
@@ -27,8 +26,7 @@ import '../components/finance/finance.css';
 export default function Finance() {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const currentMonth = toMonthKey(new Date());
-  const [month, setMonth] = useState(currentMonth);
+  const [month, setMonth] = useState(() => toMonthKey(new Date()));
 
   const { data: bills, loading: loadingBills } = useFirestoreCollection<Bill>(
     user?.uid,
@@ -87,32 +85,7 @@ export default function Finance() {
         </Button>
       </header>
 
-      <div className="rumo-month-nav">
-        <button
-          type="button"
-          className="rumo-month-nav-btn"
-          aria-label="Mês anterior"
-          onClick={() => setMonth((m) => addMonths(m, -1))}
-        >
-          ‹
-        </button>
-        <div className="rumo-month-nav-label">
-          <span>{formatMonthLabel(month)}</span>
-          {month !== currentMonth && (
-            <button type="button" className="rumo-form-link" onClick={() => setMonth(currentMonth)}>
-              Voltar para o mês atual
-            </button>
-          )}
-        </div>
-        <button
-          type="button"
-          className="rumo-month-nav-btn"
-          aria-label="Próximo mês"
-          onClick={() => setMonth((m) => addMonths(m, 1))}
-        >
-          ›
-        </button>
-      </div>
+      <MonthNav month={month} onChange={setMonth} />
 
       {loading ? (
         <Loading />

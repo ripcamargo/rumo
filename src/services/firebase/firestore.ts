@@ -13,6 +13,7 @@ import {
   Timestamp,
   updateDoc,
   where,
+  writeBatch,
   type QueryConstraint,
 } from 'firebase/firestore';
 import { db } from './config';
@@ -28,6 +29,7 @@ import type {
   WeightEntry,
 } from '../../types';
 import { toMonthKey, type MonthBill } from '../../utils/finance';
+import { stableHash } from '../../utils/transactions';
 
 /** Firestore rejeita campos com valor `undefined` — remove antes de gravar. */
 function stripUndefined<T extends object>(data: T): Partial<T> {
@@ -413,4 +415,85 @@ export async function updateRecurringBill(
 
 export async function deleteRecurringBill(userId: string, recurringId: string) {
   await deleteDoc(doc(db, 'users', userId, 'recurringBills', recurringId));
+}
+
+// Finanças — transações importadas (OFX)
+export interface NewTransaction {
+  id: string;
+  date: Date;
+  amountCents: number;
+  description: string;
+  descriptionKey: string;
+  categoryId: string;
+  categorySource: 'auto' | 'rule';
+  accountKey: string;
+  accountLabel: string;
+  fitId: string;
+}
+
+/** Ids já gravados no intervalo — usado para não reimportar (e não sobrescrever categorias editadas). */
+export async function getTransactionIdsBetween(userId: string, from: Date, to: Date): Promise<Set<string>> {
+  const q = query(
+    userSubcollection(userId, 'transactions'),
+    where('date', '>=', Timestamp.fromDate(from)),
+    where('date', '<=', Timestamp.fromDate(to)),
+  );
+  const snapshot = await getDocs(q);
+  return new Set(snapshot.docs.map((d) => d.id));
+}
+
+const BATCH_LIMIT = 450;
+
+async function commitInChunks<T>(items: T[], apply: (batch: ReturnType<typeof writeBatch>, item: T) => void) {
+  for (let i = 0; i < items.length; i += BATCH_LIMIT) {
+    const batch = writeBatch(db);
+    items.slice(i, i + BATCH_LIMIT).forEach((item) => apply(batch, item));
+    await batch.commit();
+  }
+}
+
+export async function importTransactions(userId: string, transactions: NewTransaction[]) {
+  await commitInChunks(transactions, (batch, { id, date, ...tx }) => {
+    batch.set(doc(db, 'users', userId, 'transactions', id), {
+      ...tx,
+      date: Timestamp.fromDate(date),
+      month: toMonthKey(date),
+      importedAt: serverTimestamp(),
+    });
+  });
+}
+
+/**
+ * Muda a categoria de uma transação. Com `applyToSimilar`, grava uma regra
+ * para a descrição e recategoriza todas as transações iguais já importadas.
+ */
+export async function setTransactionCategory(
+  userId: string,
+  transactionId: string,
+  descriptionKey: string,
+  categoryId: string,
+  applyToSimilar: boolean,
+) {
+  if (!applyToSimilar) {
+    await updateDoc(doc(db, 'users', userId, 'transactions', transactionId), {
+      categoryId,
+      categorySource: 'manual',
+    });
+    return;
+  }
+  await setDoc(doc(db, 'users', userId, 'categoryRules', stableHash(descriptionKey)), {
+    key: descriptionKey,
+    categoryId,
+    updatedAt: serverTimestamp(),
+  });
+  const similar = await getDocs(
+    query(userSubcollection(userId, 'transactions'), where('descriptionKey', '==', descriptionKey)),
+  );
+  await commitInChunks(similar.docs, (batch, d) => {
+    batch.update(d.ref, { categoryId, categorySource: d.id === transactionId ? 'manual' : 'rule' });
+  });
+}
+
+export async function deleteTransaction(userId: string, transactionId: string) {
+  await deleteDoc(doc(db, 'users', userId, 'transactions', transactionId));
 }

@@ -18,6 +18,7 @@ import FoodCategories from './pages/FoodCategories';
 import Settings from './pages/Settings';
 import Finance from './pages/Finance';
 import FinanceRecurring from './pages/FinanceRecurring';
+import FinanceSpending from './pages/FinanceSpending';
 
 export default function App() {
   return (
@@ -67,6 +68,7 @@ export default function App() {
                   <Route path="/categorias-alimentos" element={<FoodCategories />} />
                   <Route path="/configuracoes" element={<Settings />} />
                   <Route path="/financas" element={<Finance />} />
+                  <Route path="/financas/gastos" element={<FinanceSpending />} />
                   <Route path="/financas/fixas" element={<FinanceRecurring />} />
                 </Route>
               </Routes>

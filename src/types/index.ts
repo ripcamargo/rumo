@@ -142,3 +142,28 @@ export interface RecurringBill {
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
+
+/** Movimentação importada de extrato bancário (OFX). Saídas têm valor negativo. */
+export interface Transaction {
+  id: string;
+  date: Timestamp;
+  /** Mês de referência no formato `YYYY-MM`. */
+  month: string;
+  amountCents: number;
+  description: string;
+  /** Descrição normalizada — chave das regras de categoria aprendidas. */
+  descriptionKey: string;
+  categoryId: string;
+  categorySource: 'auto' | 'rule' | 'manual';
+  accountKey: string;
+  accountLabel: string;
+  fitId: string;
+  importedAt: Timestamp;
+}
+
+/** Regra aprendida: transações com esta descrição normalizada vão para a categoria. */
+export interface CategoryRule {
+  id: string;
+  key: string;
+  categoryId: string;
+}
