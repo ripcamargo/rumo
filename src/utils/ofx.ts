@@ -77,8 +77,8 @@ function parseOfxDate(value: string | undefined): Date | null {
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12);
 }
 
-/** Valores podem vir como "-50.00", "-50,00" ou "1,234.56". */
-function parseOfxAmount(value: string | undefined): number | null {
+/** Valores podem vir como "-50.00", "-50,00", "1,234.56" ou "-1.650,16". */
+export function parseStatementAmount(value: string | undefined): number | null {
   if (!value) return null;
   let normalized = value.replace(/\s/g, '');
   if (normalized.includes(',') && normalized.includes('.')) {
@@ -121,7 +121,7 @@ export function parseOfx(content: string): OfxStatement {
   const transactions: OfxTransaction[] = [];
   for (const block of blocks(content, 'STMTTRN')) {
     const date = parseOfxDate(field(block, 'DTPOSTED'));
-    const amountCents = parseOfxAmount(field(block, 'TRNAMT'));
+    const amountCents = parseStatementAmount(field(block, 'TRNAMT'));
     // Linhas informativas (ex.: "SALDO ANTERIOR") costumam vir com valor zero.
     if (!date || amountCents === null || amountCents === 0) continue;
     const description = buildDescription(block);

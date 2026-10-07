@@ -60,6 +60,8 @@ const KEYWORD_RULES: [string, string][] = [
   ['PROVENTOS', 'receitas'],
   ['RENDIMENTO', 'receitas'],
   ['PIX RECEBIDO', 'receitas'],
+  ['REMUNERACAO', 'receitas'],
+  ['ADIANTAMENTO SA', 'receitas'],
   // Taxas
   ['IOF', 'taxas'],
   ['TARIFA', 'taxas'],
@@ -69,6 +71,8 @@ const KEYWORD_RULES: [string, string][] = [
   ['IPVA', 'taxas'],
   ['IPTU', 'taxas'],
   ['ENCARGOS', 'taxas'],
+  ['SEGURO CARTAO', 'taxas'],
+  ['SEGURO LIS', 'taxas'],
   // Compras (antes de "MERCADO" para não confundir com supermercado)
   ['MERCADOLIVRE', 'compras'],
   ['MERCADO LIVRE', 'compras'],
@@ -84,6 +88,13 @@ const KEYWORD_RULES: [string, string][] = [
   ['HORTIFRUTI', 'mercado'],
   ['SACOLAO', 'mercado'],
   ['ACOUGUE', 'mercado'],
+  // Abreviações do extrato Itaú ("PAY SUPER", "PAY MINUT"...)
+  ['SUPER ', 'mercado'],
+  ['MERCA ', 'mercado'],
+  ['MINUT', 'mercado'],
+  ['MINUTO PA', 'mercado'],
+  ['OXXO', 'mercado'],
+  ['PAO D', 'mercado'],
   // Alimentação
   ['IFOOD', 'alimentacao'],
   ['IFD', 'alimentacao'],
@@ -102,6 +113,13 @@ const KEYWORD_RULES: [string, string][] = [
   ['CAFE', 'alimentacao'],
   ['CHURRASCARIA', 'alimentacao'],
   ['SORVETERIA', 'alimentacao'],
+  ['PADAR', 'alimentacao'],
+  ['CONFI', 'alimentacao'],
+  ['MC DO', 'alimentacao'],
+  ['DOCERIA', 'alimentacao'],
+  ['BOTEQ', 'alimentacao'],
+  ['ADEGA', 'alimentacao'],
+  ['CERVE', 'alimentacao'],
   // Transporte
   ['UBER', 'transporte'],
   ['POSTO', 'transporte'],
@@ -116,6 +134,9 @@ const KEYWORD_RULES: [string, string][] = [
   ['VELOE', 'transporte'],
   ['PEDAGIO', 'transporte'],
   ['METRO', 'transporte'],
+  ['AUTOP', 'transporte'],
+  ['AUTO ', 'transporte'],
+  ['SPVIA', 'transporte'],
   // Moradia
   ['ALUGUEL', 'moradia'],
   ['CONDOMINIO', 'moradia'],
@@ -166,6 +187,7 @@ const KEYWORD_RULES: [string, string][] = [
   ['SMART FIT', 'saude'],
   ['SMARTFIT', 'saude'],
   ['ACADEMIA', 'saude'],
+  ['REMED', 'saude'],
   // Compras
   ['AMAZON', 'compras'],
   ['AMZN', 'compras'],
@@ -181,6 +203,8 @@ const KEYWORD_RULES: [string, string][] = [
   ['CENTAURO', 'compras'],
   ['NETSHOES', 'compras'],
   ['KABUM', 'compras'],
+  ['LEROY', 'compras'],
+  ['LOJAS', 'compras'],
   // Lazer
   ['CINEMA', 'lazer'],
   ['CINEMARK', 'lazer'],

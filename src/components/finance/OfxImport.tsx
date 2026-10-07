@@ -8,7 +8,8 @@ import {
 } from '../../services/firebase/firestore';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
-import { decodeOfx, parseOfx } from '../../utils/ofx';
+import { decodeOfx } from '../../utils/ofx';
+import { parseStatementFile } from '../../utils/statement';
 import { categorize, normalizeDescription, transactionDocId } from '../../utils/transactions';
 import { formatCurrency, toMonthKey } from '../../utils/finance';
 import { formatShortDate } from '../../utils/dates';
@@ -36,7 +37,7 @@ interface OfxImportProps {
 }
 
 async function readStatement(userId: string, file: File, rules: Map<string, string>): Promise<StatementPreview> {
-  const statement = parseOfx(decodeOfx(await file.arrayBuffer()));
+  const statement = parseStatementFile(decodeOfx(await file.arrayBuffer()), file.name);
   if (statement.transactions.length === 0) throw new Error('nenhuma transação encontrada no arquivo.');
 
   const times = statement.transactions.map((t) => t.date.getTime());
@@ -123,12 +124,12 @@ export function OfxImport({ rules, onImported }: OfxImportProps) {
   return (
     <>
       <Button variant="success" disabled={reading} onClick={() => inputRef.current?.click()}>
-        {reading ? 'Lendo...' : '📥 Importar OFX'}
+        {reading ? 'Lendo...' : '📥 Importar extrato'}
       </Button>
       <input
         ref={inputRef}
         type="file"
-        accept=".ofx,.OFX,application/x-ofx"
+        accept=".ofx,.OFX,.txt,.TXT,.csv,.CSV,application/x-ofx,text/plain,text/csv"
         multiple
         hidden
         onChange={(e) => void handleFiles(e.target.files)}

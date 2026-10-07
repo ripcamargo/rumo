@@ -60,7 +60,7 @@ export default function FinanceSpending() {
           <EmptyState
             icon="📥"
             title="Nenhuma transação neste mês."
-            description="No app ou internet banking do seu banco, exporte o extrato (ou a fatura do cartão) no formato OFX e importe aqui. Dá para importar vários arquivos de uma vez — o que já foi importado é ignorado."
+            description="No app ou internet banking do seu banco, exporte o extrato (ou a fatura do cartão) em OFX ou TXT e importe aqui. Dá para importar vários arquivos de uma vez — o que já foi importado é ignorado."
           />
         </Card>
       ) : (

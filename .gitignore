@@ -28,3 +28,7 @@ dist-ssr
 .claude/
 .firebase/
 firebase-debug.log
+
+# Extratos bancários pessoais (nunca versionar nem publicar)
+extratos/
+*.ofx
