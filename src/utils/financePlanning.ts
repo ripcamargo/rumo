@@ -1,5 +1,6 @@
 import type { Bank, BankDebt, DebtKind, IncomeItem, IncomeItemKind } from '../types';
 import { formatCurrency } from './finance';
+import { normalizeDescription } from './transactions';
 
 export const DEBT_KIND_LABELS: Record<DebtKind, string> = {
   cartao: 'Cartão de crédito',
@@ -75,6 +76,72 @@ export interface NetWorth {
   savedCents: number;
   debtCents: number;
   netWorthCents: number;
+}
+
+/** Onde o resultado de um extrato importado é refletido: no guardado ou numa dívida do banco. */
+export type BankTarget = { kind: 'balance' } | { kind: 'debt'; debtId: string };
+
+export interface BankUpdate {
+  balanceCents: number;
+  debts: BankDebt[];
+  /** Quanto virou cheque especial por o guardado não cobrir as saídas. */
+  overdraftCents: number;
+}
+
+/**
+ * Aplica o saldo líquido de um extrato (entradas − saídas) ao banco.
+ * No guardado, o que faltar vira dívida de cheque especial (somada à que já
+ * existir). Numa dívida, gastos aumentam e pagamentos abatem, sem ficar negativa.
+ */
+export function applyNetToBank(
+  bank: Pick<Bank, 'balanceCents' | 'debts'>,
+  target: BankTarget,
+  netCents: number,
+  newDebtId: string,
+): BankUpdate {
+  const debts = bank.debts ?? [];
+
+  if (target.kind === 'debt') {
+    return {
+      balanceCents: bank.balanceCents ?? 0,
+      debts: debts.map((d) => (d.id === target.debtId ? { ...d, balanceCents: Math.max(0, d.balanceCents - netCents) } : d)),
+      overdraftCents: 0,
+    };
+  }
+
+  const balanceCents = (bank.balanceCents ?? 0) + netCents;
+  if (balanceCents >= 0) return { balanceCents, debts, overdraftCents: 0 };
+
+  const overdraftCents = -balanceCents;
+  const overdraft = debts.find((d) => d.kind === 'cheque_especial');
+  return {
+    balanceCents: 0,
+    debts: overdraft
+      ? debts.map((d) => (d === overdraft ? { ...d, balanceCents: d.balanceCents + overdraftCents } : d))
+      : [...debts, { id: newDebtId, kind: 'cheque_especial', balanceCents: overdraftCents, paymentTracked: false }],
+    overdraftCents,
+  };
+}
+
+export interface BankReflection {
+  bankId: string;
+  target: BankTarget;
+}
+
+/**
+ * Sugestão inicial ao marcar a opção: o banco cujo nome lembra o do extrato
+ * (ex.: "Mercado Pago") e, em extrato de cartão, a dívida do cartão.
+ */
+export function suggestReflection(banks: Bank[], accountLabel: string, isCreditCard: boolean): BankReflection | null {
+  if (banks.length === 0) return null;
+  const label = normalizeDescription(accountLabel).replace(/\s/g, '');
+  const bank =
+    banks.find((b) => {
+      const name = normalizeDescription(b.name).replace(/\s/g, '');
+      return name.length > 0 && (label.includes(name) || name.includes(label));
+    }) ?? banks[0];
+  const card = isCreditCard ? (bank.debts ?? []).find((d) => d.kind === 'cartao') : undefined;
+  return { bankId: bank.id, target: card ? { kind: 'debt', debtId: card.id } : { kind: 'balance' } };
 }
 
 export function summarizeNetWorth(banks: Bank[]): NetWorth {

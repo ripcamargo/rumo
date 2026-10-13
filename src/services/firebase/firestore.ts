@@ -8,6 +8,7 @@ import {
   getDocs,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   Timestamp,
@@ -18,6 +19,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import type {
+  Bank,
   BankDebt,
   BodyMeasurement,
   IncomeItemKind,
@@ -31,7 +33,8 @@ import type {
   WeightEntry,
 } from '../../types';
 import { toMonthKey, type MonthBill } from '../../utils/finance';
-import { stableHash } from '../../utils/transactions';
+import { stableHash, type TransactionFingerprint } from '../../utils/transactions';
+import { applyNetToBank, type BankTarget } from '../../utils/financePlanning';
 
 /** Firestore rejeita campos com valor `undefined` — remove antes de gravar. */
 function stripUndefined<T extends object>(data: T): Partial<T> {
@@ -433,15 +436,28 @@ export interface NewTransaction {
   fitId: string;
 }
 
-/** Ids já gravados no intervalo — usado para não reimportar (e não sobrescrever categorias editadas). */
-export async function getTransactionIdsBetween(userId: string, from: Date, to: Date): Promise<Set<string>> {
+/**
+ * Transações já gravadas nos dias do intervalo (dias inteiros, pois o horário
+ * varia entre formatos) — usado para não reimportar nem sobrescrever categorias editadas.
+ */
+export async function getTransactionsBetween(userId: string, from: Date, to: Date): Promise<TransactionFingerprint[]> {
+  const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const end = new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999);
   const q = query(
     userSubcollection(userId, 'transactions'),
-    where('date', '>=', Timestamp.fromDate(from)),
-    where('date', '<=', Timestamp.fromDate(to)),
+    where('date', '>=', Timestamp.fromDate(start)),
+    where('date', '<=', Timestamp.fromDate(end)),
   );
   const snapshot = await getDocs(q);
-  return new Set(snapshot.docs.map((d) => d.id));
+  return snapshot.docs.map((d) => {
+    const data = d.data();
+    return {
+      id: d.id,
+      date: (data.date as Timestamp).toDate(),
+      amountCents: data.amountCents as number,
+      descriptionKey: (data.descriptionKey as string) ?? '',
+    };
+  });
 }
 
 const BATCH_LIMIT = 450;
@@ -519,6 +535,18 @@ export async function saveBankDebts(userId: string, bankId: string, debts: BankD
   await updateDoc(doc(db, 'users', userId, 'banks', bankId), {
     debts: debts.map((d) => stripUndefined(d)),
     updatedAt: serverTimestamp(),
+  });
+}
+
+/** Reflete o saldo líquido de um extrato no banco, lendo os valores atuais na mesma transação. */
+export async function applyStatementToBank(userId: string, bankId: string, target: BankTarget, netCents: number) {
+  const ref = doc(db, 'users', userId, 'banks', bankId);
+  await runTransaction(db, async (tx) => {
+    const snapshot = await tx.get(ref);
+    if (!snapshot.exists()) throw new Error('Banco não encontrado.');
+    const bank = snapshot.data() as Pick<Bank, 'balanceCents' | 'debts'>;
+    const { balanceCents, debts } = applyNetToBank(bank, target, netCents, crypto.randomUUID());
+    tx.update(ref, { balanceCents, debts: debts.map((d) => stripUndefined(d)), updatedAt: serverTimestamp() });
   });
 }
 

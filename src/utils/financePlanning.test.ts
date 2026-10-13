@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  applyNetToBank,
   buildInsights,
   projectNetWorth,
   requiredMonthlyBudget,
@@ -104,5 +105,37 @@ describe('dicas e sugestões', () => {
     expect(suggestSurplusSplit(100000, true, 2)).toEqual({ debtsCents: 70000, reserveCents: 10000, freeCents: 20000 });
     expect(suggestSurplusSplit(100000, false, 1)).toEqual({ debtsCents: 0, reserveCents: 60000, freeCents: 40000 });
     expect(suggestSurplusSplit(-1, true, 0)).toEqual({ debtsCents: 0, reserveCents: 0, freeCents: 0 });
+  });
+});
+
+describe('refletir extrato no banco', () => {
+  const card: BankDebt = { id: 'c', kind: 'cartao', balanceCents: 50000 };
+
+  it('soma o saldo líquido ao guardado', () => {
+    expect(applyNetToBank({ balanceCents: 10000, debts: [] }, { kind: 'balance' }, 2500, 'n')).toEqual({
+      balanceCents: 12500,
+      debts: [],
+      overdraftCents: 0,
+    });
+  });
+
+  it('o que o guardado não cobre vira cheque especial', () => {
+    const result = applyNetToBank({ balanceCents: 10000, debts: [card] }, { kind: 'balance' }, -15000, 'n');
+    expect(result.balanceCents).toBe(0);
+    expect(result.overdraftCents).toBe(5000);
+    expect(result.debts).toEqual([card, { id: 'n', kind: 'cheque_especial', balanceCents: 5000, paymentTracked: false }]);
+  });
+
+  it('soma ao cheque especial que já existe', () => {
+    const overdraft: BankDebt = { id: 'o', kind: 'cheque_especial', balanceCents: 1000 };
+    const result = applyNetToBank({ balanceCents: 0, debts: [overdraft] }, { kind: 'balance' }, -500, 'n');
+    expect(result.debts).toEqual([{ ...overdraft, balanceCents: 1500 }]);
+  });
+
+  it('numa dívida, gastos aumentam e pagamentos abatem sem ficar negativa', () => {
+    const bank = { balanceCents: 777, debts: [card] };
+    expect(applyNetToBank(bank, { kind: 'debt', debtId: 'c' }, -2000, 'n').debts[0].balanceCents).toBe(52000);
+    expect(applyNetToBank(bank, { kind: 'debt', debtId: 'c' }, 80000, 'n').debts[0].balanceCents).toBe(0);
+    expect(applyNetToBank(bank, { kind: 'debt', debtId: 'c' }, -2000, 'n').balanceCents).toBe(777);
   });
 });

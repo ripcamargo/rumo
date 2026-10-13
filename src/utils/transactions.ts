@@ -55,6 +55,8 @@ const KEYWORD_RULES: [string, string][] = [
   ['PAGAMENTO DE FATURA', 'transferencias'],
   ['APLICACAO', 'transferencias'],
   ['RESGATE', 'transferencias'],
+  // Pix devolvido: fica em Outros, junto do "Pix enviado" que ele estorna
+  ['REEMBOLSO DE TRANSFERENCIA', 'outros'],
   // Receitas
   ['SALARIO', 'receitas'],
   ['PROVENTOS', 'receitas'],
@@ -95,6 +97,10 @@ const KEYWORD_RULES: [string, string][] = [
   ['MINUTO PA', 'mercado'],
   ['OXXO', 'mercado'],
   ['PAO D', 'mercado'],
+  // Razão social do Pão de Açúcar / Extra (GPA)
+  ['COMPANHIA BRASILEIRA DE DISTRIBUICAO', 'mercado'],
+  // Razão social que aparece no Pix do Mercado Pago (OXXO e similares)
+  ['CONVENIENCIA', 'mercado'],
   // Alimentação
   ['IFOOD', 'alimentacao'],
   ['IFD', 'alimentacao'],
@@ -120,6 +126,15 @@ const KEYWORD_RULES: [string, string][] = [
   ['BOTEQ', 'alimentacao'],
   ['ADEGA', 'alimentacao'],
   ['CERVE', 'alimentacao'],
+  ['MICROCERVEJ', 'alimentacao'],
+  ['BAR', 'alimentacao'],
+  ['PUB', 'alimentacao'],
+  ['BAGUETTE', 'alimentacao'],
+  // Razões sociais de redes de restaurante (Habib's, Sukiya)
+  ['HABIB', 'alimentacao'],
+  ['JAD ZOGHEIB', 'alimentacao'],
+  ['ZENSHO', 'alimentacao'],
+  ['SUKIYA', 'alimentacao'],
   // Transporte
   ['UBER', 'transporte'],
   ['POSTO', 'transporte'],
@@ -205,6 +220,11 @@ const KEYWORD_RULES: [string, string][] = [
   ['KABUM', 'compras'],
   ['LEROY', 'compras'],
   ['LOJAS', 'compras'],
+  ['ROUPAS', 'compras'],
+  ['KALUNGA', 'compras'],
+  ['PET SHOP', 'compras'],
+  ['PETZ', 'compras'],
+  ['COBASI', 'compras'],
   // Lazer
   ['CINEMA', 'lazer'],
   ['CINEMARK', 'lazer'],
@@ -315,4 +335,51 @@ export function stableHash(input: string): string {
 
 export function transactionDocId(accountKey: string, fitId: string): string {
   return `ofx_${stableHash(`${accountKey}|${fitId}`)}`;
+}
+
+/** O mínimo de uma transação para reconhecer repetidas. */
+export interface TransactionFingerprint {
+  id: string;
+  date: Date;
+  amountCents: number;
+  descriptionKey: string;
+}
+
+function sameDayKey(tx: TransactionFingerprint): string {
+  const d = tx.date;
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}|${tx.amountCents}|${tx.descriptionKey}`;
+}
+
+/**
+ * Separa o que é realmente novo. Uma transação é repetida quando o id já
+ * existe ou quando já há outra no mesmo dia, com mesmo valor e mesma descrição
+ * normalizada — o caso de extratos em formatos diferentes (ids distintos) para
+ * o mesmo período. A comparação é por quantidade: se o dia já tem duas compras
+ * iguais e o arquivo traz três, só a terceira entra.
+ */
+export function splitNewTransactions<T extends TransactionFingerprint>(
+  incoming: T[],
+  existing: TransactionFingerprint[],
+): { fresh: T[]; sameId: number; similar: number } {
+  const existingIds = new Set(existing.map((t) => t.id));
+  const available = new Map<string, number>();
+  for (const tx of existing) available.set(sameDayKey(tx), (available.get(sameDayKey(tx)) ?? 0) + 1);
+
+  // Primeiro consome as que casam pelo id, para elas não "gastarem" a vaga de outra parecida.
+  const pending = incoming.filter((tx) => {
+    if (!existingIds.has(tx.id)) return true;
+    const key = sameDayKey(tx);
+    available.set(key, (available.get(key) ?? 0) - 1);
+    return false;
+  });
+
+  const fresh = pending.filter((tx) => {
+    const key = sameDayKey(tx);
+    const left = available.get(key) ?? 0;
+    if (left <= 0) return true;
+    available.set(key, left - 1);
+    return false;
+  });
+
+  return { fresh, sameId: incoming.length - pending.length, similar: pending.length - fresh.length };
 }
