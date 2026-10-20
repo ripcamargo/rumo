@@ -118,6 +118,8 @@ export interface Bill {
   id: string;
   name: string;
   amountCents: number;
+  /** Para quem a conta é paga (pessoa, empresa...) — apenas informativo. Vazio limpa o herdado da conta fixa. */
+  payee?: string;
   dueDate: Timestamp;
   /** Mês de referência no formato `YYYY-MM`. */
   month: string;
@@ -135,6 +137,8 @@ export interface RecurringBill {
   id: string;
   name: string;
   amountCents: number;
+  /** Para quem a conta é paga — apenas informativo. */
+  payee?: string;
   dueDay: number;
   /** Primeiro mês em que a conta aparece, `YYYY-MM`. */
   startMonth: string;

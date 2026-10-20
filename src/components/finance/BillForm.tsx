@@ -48,6 +48,7 @@ export function BillForm({ month, bill, onDone }: BillFormProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [name, setName] = useState(bill?.name ?? '');
+  const [payee, setPayee] = useState(bill?.payee ?? '');
   const [amount, setAmount] = useState(bill ? centsToInput(bill.amountCents) : '');
   const [dueDate, setDueDate] = useState(toDateInputValue(bill?.dueDate ?? defaultDueDate(month)));
   const [repeat, setRepeat] = useState<Repeat>('once');
@@ -85,15 +86,16 @@ export function BillForm({ month, bill, onDone }: BillFormProps) {
     setError(null);
     try {
       if (bill) {
-        await saveMonthBill(user.uid, bill, { name: name.trim(), amountCents, dueDate: due });
+        await saveMonthBill(user.uid, bill, { name: name.trim(), amountCents, dueDate: due, payee: payee.trim() });
         showToast('Conta atualizada');
       } else if (repeat === 'once') {
-        await addBill(user.uid, { name: name.trim(), amountCents, dueDate: due });
+        await addBill(user.uid, { name: name.trim(), amountCents, dueDate: due, payee: payee.trim() || undefined });
         showToast('Conta adicionada');
       } else {
         await addRecurringBill(user.uid, {
           name: name.trim(),
           amountCents,
+          payee: payee.trim() || undefined,
           dueDay: due.getDate(),
           // Parcela atual 3 em outubro ⇒ a conta começou em agosto.
           startMonth: addMonths(toMonthKey(due), -(current - 1)),
@@ -140,6 +142,20 @@ export function BillForm({ month, bill, onDone }: BillFormProps) {
           autoFocus={!bill}
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="rumo-form-label" htmlFor="bill-payee-input">
+          Pagar para (opcional)
+        </label>
+        <input
+          id="bill-payee-input"
+          className="rumo-form-input rumo-form-input-secondary"
+          type="text"
+          placeholder="Pessoa, empresa..."
+          value={payee}
+          onChange={(e) => setPayee(e.target.value)}
         />
       </div>
 

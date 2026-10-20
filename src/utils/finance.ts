@@ -6,6 +6,8 @@ export interface MonthBill {
   id: string;
   name: string;
   amountCents: number;
+  /** Para quem a conta é paga — apenas informativo. */
+  payee?: string;
   dueDate: Date;
   month: string;
   paid: boolean;
@@ -164,6 +166,8 @@ export function buildMonthBills(month: string, bills: Bill[], templates: Recurri
       id: b.id,
       name: b.name,
       amountCents: b.amountCents,
+      // Ocorrências gravadas antes do campo existir herdam o favorecido da conta fixa.
+      payee: (b.payee ?? templatesById.get(b.recurringId ?? '')?.payee) || undefined,
       dueDate: b.dueDate.toDate(),
       month: b.month,
       paid: b.paid,
@@ -178,6 +182,7 @@ export function buildMonthBills(month: string, bills: Bill[], templates: Recurri
       id: recurringBillDocId(t.id, month),
       name: t.name,
       amountCents: t.amountCents,
+      payee: t.payee,
       dueDate: dueDateFor(month, t.dueDay),
       month,
       paid: false,

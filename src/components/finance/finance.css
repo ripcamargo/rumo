@@ -825,3 +825,34 @@
 .rumo-import-reflect-warning {
   color: var(--rumo-danger);
 }
+
+/* Relatório completo (Painel) */
+.rumo-report-trigger {
+  background: none;
+  border: none;
+  padding: var(--rumo-space-1);
+  font-size: var(--rumo-fs-sm);
+  line-height: 1;
+  opacity: 0.45;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.rumo-report-trigger:hover,
+.rumo-report-trigger:focus-visible {
+  opacity: 1;
+}
+
+.rumo-report-text {
+  width: 100%;
+  height: 45vh;
+  padding: var(--rumo-space-3);
+  border: 1px solid var(--rumo-border);
+  border-radius: var(--rumo-radius-sm);
+  background: var(--rumo-bg);
+  color: var(--rumo-text-primary);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: var(--rumo-fs-xs);
+  line-height: 1.5;
+  resize: vertical;
+}

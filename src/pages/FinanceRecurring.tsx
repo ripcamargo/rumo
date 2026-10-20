@@ -30,6 +30,7 @@ function describe(recurring: RecurringBill, currentMonth: string): string {
   if (monthDiff(currentMonth, recurring.startMonth) > 0) {
     parts.push(`começa em ${formatShortMonthLabel(recurring.startMonth)}`);
   }
+  if (recurring.payee) parts.push(`para ${recurring.payee}`);
   return parts.join(' · ');
 }
 

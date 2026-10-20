@@ -165,6 +165,7 @@ export default function FinanceBills() {
                         </span>
                         <span className="rumo-bill-meta">
                           Vence {formatShortDate(bill.dueDate)}
+                          {bill.payee && <> · para {bill.payee}</>}
                           {status.label && status.kind !== 'paid' && (
                             <span className={`rumo-bill-status rumo-bill-status--${status.kind}`}>
                               {status.label}

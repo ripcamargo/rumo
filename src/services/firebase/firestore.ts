@@ -21,6 +21,11 @@ import { db } from './config';
 import type {
   Bank,
   BankDebt,
+  Bill,
+  ExtraIncome,
+  IncomeItem,
+  RecurringBill,
+  Transaction,
   BodyMeasurement,
   IncomeItemKind,
   CalorieEntry,
@@ -35,6 +40,7 @@ import type {
 import { toMonthKey, type MonthBill } from '../../utils/finance';
 import { stableHash, type TransactionFingerprint } from '../../utils/transactions';
 import { applyNetToBank, type BankTarget } from '../../utils/financePlanning';
+import type { FinanceData } from '../../utils/financeOverview';
 
 /** Firestore rejeita campos com valor `undefined` — remove antes de gravar. */
 function stripUndefined<T extends object>(data: T): Partial<T> {
@@ -315,10 +321,14 @@ export async function getFoodCategories(userId: string): Promise<FoodCategory[]>
 }
 
 // Finanças — contas do mês
-export async function addBill(userId: string, data: { name: string; amountCents: number; dueDate: Date }) {
+export async function addBill(
+  userId: string,
+  data: { name: string; amountCents: number; dueDate: Date; payee?: string },
+) {
   await addDoc(userSubcollection(userId, 'bills'), {
     name: data.name,
     amountCents: data.amountCents,
+    ...(data.payee ? { payee: data.payee } : {}),
     dueDate: Timestamp.fromDate(data.dueDate),
     month: toMonthKey(data.dueDate),
     paid: false,
@@ -335,7 +345,7 @@ export async function addBill(userId: string, data: { name: string; amountCents:
 export async function saveMonthBill(
   userId: string,
   bill: MonthBill,
-  changes: Partial<{ name: string; amountCents: number; dueDate: Date; paid: boolean }>,
+  changes: Partial<{ name: string; amountCents: number; dueDate: Date; paid: boolean; payee: string }>,
 ) {
   const ref = doc(db, 'users', userId, 'bills', bill.id);
   const { dueDate, paid, ...rest } = changes;
@@ -356,6 +366,7 @@ export async function saveMonthBill(
   await setDoc(ref, {
     name: rest.name ?? bill.name,
     amountCents: rest.amountCents ?? bill.amountCents,
+    ...stripUndefined({ payee: rest.payee ?? bill.payee }),
     dueDate: Timestamp.fromDate(dueDate ?? bill.dueDate),
     month,
     paid: isPaid,
@@ -389,7 +400,14 @@ export async function removeMonthBill(userId: string, bill: MonthBill) {
 // Finanças — contas fixas
 export async function addRecurringBill(
   userId: string,
-  data: { name: string; amountCents: number; dueDay: number; startMonth: string; installments?: number },
+  data: {
+    name: string;
+    amountCents: number;
+    dueDay: number;
+    startMonth: string;
+    installments?: number;
+    payee?: string;
+  },
 ) {
   await addDoc(userSubcollection(userId, 'recurringBills'), {
     ...stripUndefined(data),
@@ -408,18 +426,40 @@ export async function updateRecurringBill(
     startMonth: string;
     /** `null` torna a conta fixa sem data de término; `undefined` a deixa inalterada. */
     installments: number | null;
+    /** Texto vazio remove o favorecido. */
+    payee: string;
   }>,
 ) {
-  const { installments, ...rest } = data;
+  const { installments, payee, ...rest } = data;
   await updateDoc(doc(db, 'users', userId, 'recurringBills', recurringId), {
     ...stripUndefined(rest),
     ...(installments !== undefined ? { installments: installments ?? deleteField() } : {}),
+    ...(payee !== undefined ? { payee: payee || deleteField() } : {}),
     updatedAt: serverTimestamp(),
   });
 }
 
 export async function deleteRecurringBill(userId: string, recurringId: string) {
   await deleteDoc(doc(db, 'users', userId, 'recurringBills', recurringId));
+}
+
+// Finanças — leitura completa (relatório)
+async function getAll<T>(userId: string, name: string): Promise<T[]> {
+  const snapshot = await getDocs(userSubcollection(userId, name));
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
+}
+
+/** Lê todas as coleções financeiras de uma vez, para o relatório completo. */
+export async function getAllFinanceData(userId: string): Promise<FinanceData> {
+  const [banks, incomeItems, extraIncomes, bills, recurringBills, transactions] = await Promise.all([
+    getAll<Bank>(userId, 'banks'),
+    getAll<IncomeItem>(userId, 'incomeItems'),
+    getAll<ExtraIncome>(userId, 'extraIncomes'),
+    getAll<Bill>(userId, 'bills'),
+    getAll<RecurringBill>(userId, 'recurringBills'),
+    getAll<Transaction>(userId, 'transactions'),
+  ]);
+  return { banks, incomeItems, extraIncomes, bills, recurringBills, transactions };
 }
 
 // Finanças — transações importadas (OFX)

@@ -5,35 +5,20 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFirestoreCollection } from '../hooks/useFirestoreCollection';
 import { Card } from '../components/common/Card';
 import { Loading } from '../components/common/Loading';
+import { FinanceReportButton } from '../components/finance/FinanceReport';
 import { ProjectionChart } from '../components/finance/ProjectionChart';
 import {
   addMonths,
-  buildMonthBills,
   dueDateFor,
   formatCurrency,
   formatMonthLabel,
   formatShortMonthLabel,
   getDueStatus,
-  summarizeBills,
   toMonthKey,
 } from '../utils/finance';
 import { formatShortDate } from '../utils/dates';
-import {
-  buildInsights,
-  debtLabel,
-  flattenDebts,
-  formatMonths,
-  formatRate,
-  minimumPaymentsCents,
-  projectNetWorth,
-  requiredMonthlyBudget,
-  simulatePayoff,
-  suggestSurplusSplit,
-  summarizeIncome,
-  summarizeNetWorth,
-  untrackedPaymentsCents,
-} from '../utils/financePlanning';
-import { summarizeTransactions } from '../utils/transactions';
+import { debtLabel, formatMonths, formatRate, requiredMonthlyBudget } from '../utils/financePlanning';
+import { buildFinanceOverview } from '../utils/financeOverview';
 import type { Bank, Bill, ExtraIncome, IncomeItem, RecurringBill, Transaction } from '../types';
 import '../components/finance/finance.css';
 
@@ -69,74 +54,24 @@ export default function FinanceDashboard() {
   const loading = [banksQ, incomeQ, extrasQ, billsQ, recurringQ, txQ].some((q) => q.loading);
 
   const view = useMemo(() => {
-    const banks = banksQ.data;
-    const debts = flattenDebts(banks);
-    const worth = summarizeNetWorth(banks);
-    const income = summarizeIncome(incomeQ.data);
-    const extrasCents = extrasQ.data.reduce((sum, e) => sum + e.amountCents, 0);
-    const monthBills = buildMonthBills(month, billsQ.data, recurringQ.data);
-    const bills = summarizeBills(monthBills);
-    const untracked = untrackedPaymentsCents(debts);
-    const surplusCents = income.netCashCents + extrasCents - bills.totalCents - untracked;
-
-    // Gastos dos extratos: mês atual x média dos três meses anteriores (só meses com dados).
-    const byMonth = new Map<string, Transaction[]>();
-    for (const tx of txQ.data) byMonth.set(tx.month, [...(byMonth.get(tx.month) ?? []), tx]);
-    const current = summarizeTransactions(byMonth.get(month) ?? []);
-    const previous = [1, 2, 3].map((n) => byMonth.get(addMonths(month, -n))).filter((m): m is Transaction[] => !!m?.length).map(summarizeTransactions);
-    const avgSpendingCents = previous.length ? Math.round(previous.reduce((s, p) => s + p.expenseCents, 0) / previous.length) : 0;
-    const categoryAlerts = current.byCategory
-      .map((c) => {
-        const avg = previous.length
-          ? previous.reduce((s, p) => s + (p.byCategory.find((x) => x.category.id === c.category.id)?.spentCents ?? 0), 0) / previous.length
-          : 0;
-        return { name: c.category.name, icon: c.category.icon, currentCents: c.spentCents, averageCents: Math.round(avg) };
-      })
-      .filter((c) => c.averageCents > 0 && c.currentCents > c.averageCents * 1.2 && c.currentCents - c.averageCents > 5000)
-      .sort((a, b) => b.currentCents - b.averageCents - (a.currentCents - a.averageCents));
-
-    // Custo de vida: o maior entre compromissos do mês e o gasto médio real dos extratos.
-    const monthlyCostCents = Math.max(bills.totalCents + untracked, avgSpendingCents);
-    const reserveMonths = monthlyCostCents > 0 ? worth.savedCents / monthlyCostCents : 0;
-
-    const mins = minimumPaymentsCents(debts);
-    const basePlan = simulatePayoff(debts, mins);
-    const surplusPlan = simulatePayoff(debts, mins + Math.max(0, surplusCents));
-    const projection = projectNetWorth(worth.savedCents, debts, surplusCents, 12);
-    const upcoming = monthBills.filter((b) => !b.paid).slice(0, 4);
-
+    const overview = buildFinanceOverview(
+      {
+        banks: banksQ.data,
+        incomeItems: incomeQ.data,
+        extraIncomes: extrasQ.data,
+        bills: billsQ.data,
+        recurringBills: recurringQ.data,
+        transactions: txQ.data,
+      },
+      month,
+    );
     return {
-      debts,
-      worth,
-      income,
-      extrasCents,
-      bills,
-      untracked,
-      surplusCents,
-      current,
-      avgSpendingCents,
-      monthlyCostCents,
-      reserveMonths,
-      mins,
-      basePlan,
-      surplusPlan,
-      projection,
-      upcoming,
-      split: suggestSurplusSplit(surplusCents, debts.length > 0, reserveMonths),
-      insights: buildInsights({
-        incomeNetCashCents: income.netCashCents,
-        surplusCents,
-        billsTotalCents: bills.totalCents,
-        overdueBills: bills.overdueCount,
-        savedCents: worth.savedCents,
-        debts,
-        monthlyCostCents,
-        categoryAlerts,
-      }),
+      ...overview,
+      upcoming: overview.monthBills.filter((b) => !b.paid).slice(0, 4),
       setup: [
         { done: incomeQ.data.length > 0, label: 'Cadastre seu salário, benefícios e descontos', to: '/financas/renda' },
-        { done: banks.length > 0, label: 'Cadastre seus bancos, saldos e dívidas', to: '/financas/bancos' },
-        { done: monthBills.length > 0, label: 'Lance as contas do mês', to: '/financas/contas' },
+        { done: banksQ.data.length > 0, label: 'Cadastre seus bancos, saldos e dívidas', to: '/financas/bancos' },
+        { done: overview.monthBills.length > 0, label: 'Lance as contas do mês', to: '/financas/contas' },
         { done: txQ.data.length > 0, label: 'Importe um extrato para analisar seus gastos', to: '/financas/gastos' },
       ],
     };
@@ -181,6 +116,7 @@ export default function FinanceDashboard() {
         <h1 className="rumo-page-title">Painel</h1>
         <span className="rumo-finance-subtitle" style={{ margin: 0 }}>
           {formatMonthLabel(month)}
+          <FinanceReportButton />
         </span>
       </header>
 

@@ -21,6 +21,7 @@ export function RecurringBillForm({ recurring, onDone }: RecurringBillFormProps)
   const { user } = useAuth();
   const { showToast } = useToast();
   const [name, setName] = useState(recurring?.name ?? '');
+  const [payee, setPayee] = useState(recurring?.payee ?? '');
   const [amount, setAmount] = useState(recurring ? centsToInput(recurring.amountCents) : '');
   const [dueDay, setDueDay] = useState(String(recurring?.dueDay ?? new Date().getDate()));
   const [startMonth, setStartMonth] = useState(recurring?.startMonth ?? toMonthKey(new Date()));
@@ -48,10 +49,14 @@ export function RecurringBillForm({ recurring, onDone }: RecurringBillFormProps)
     try {
       const data = { name: name.trim(), amountCents, dueDay: day, startMonth };
       if (recurring) {
-        await updateRecurringBill(user.uid, recurring.id, { ...data, installments: count });
+        await updateRecurringBill(user.uid, recurring.id, { ...data, installments: count, payee: payee.trim() });
         showToast('Conta fixa atualizada');
       } else {
-        await addRecurringBill(user.uid, { ...data, installments: count ?? undefined });
+        await addRecurringBill(user.uid, {
+          ...data,
+          installments: count ?? undefined,
+          payee: payee.trim() || undefined,
+        });
         showToast('Conta fixa adicionada');
       }
       onDone();
@@ -93,6 +98,20 @@ export function RecurringBillForm({ recurring, onDone }: RecurringBillFormProps)
           autoFocus={!recurring}
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="rumo-form-label" htmlFor="recurring-payee-input">
+          Pagar para (opcional)
+        </label>
+        <input
+          id="recurring-payee-input"
+          className="rumo-form-input rumo-form-input-secondary"
+          type="text"
+          placeholder="Pessoa, empresa..."
+          value={payee}
+          onChange={(e) => setPayee(e.target.value)}
         />
       </div>
 
